@@ -175,7 +175,7 @@
         <div class="media-full reveal">
           <div class="wrap-inner">
             <figure class="media-block">
-              <img src="assets/images/locateanything_architecture_v5.jpg" alt="Diagram of the LocateAnything-3B architecture: Input Image + Text Query feeds into MoonViT-SO-400M Vision Encoder, then MLP Projector, then Qwen2.5 Language Decoder, then Parallel Box Decoding Head. Below, a comparison shows Slow Mode (NTP) taking 6 sequential steps versus Fast Mode (PBD) completing the same box in 1 parallel step, for roughly 10x higher throughput." loading="lazy">
+              <img src="assets/images/locateanything_architecture_v5.gif" alt="Animated diagram of the LocateAnything-3B architecture: Input Image + Text Query feeds into MoonViT-SO-400M Vision Encoder, then MLP Projector, then Qwen2.5 Language Decoder, then Parallel Box Decoding Head. Below, a comparison shows Slow Mode (NTP) taking 6 sequential steps versus Fast Mode (PBD) completing the same box in 1 parallel step, for roughly 10x higher throughput." loading="lazy">
               <figcaption><span class="fig-num">Fig. 2</span> The four-stage pipeline, and the throughput gap between sequential (NTP) and parallel (PBD) box decoding.</figcaption>
             </figure>
           </div>
@@ -217,7 +217,7 @@
         </div>
 
         <figure class="media-block reveal">
-          <img src="assets/images/vision_tokenization_v4.jpg" alt="MoonViT native-resolution image tokenization diagram: a raw input image is split into a variable-count grid of native-resolution patches, flattened into a token sequence, passed through MoonViT transformer encoder layers, and output as contextualized visual features for the language model — preserving original aspect ratio without resizing distortion." loading="lazy">
+          <img src="assets/images/vision_tokenization_v4.gif" alt="Animated MoonViT native-resolution image tokenization diagram: a raw input image is split into a variable-count grid of native-resolution patches, flattened into a token sequence, passed through MoonViT transformer encoder layers, and output as contextualized visual features for the language model — preserving original aspect ratio without resizing distortion." loading="lazy">
           <figcaption><span class="fig-num">Fig. 4</span> MoonViT tokenizes images at native resolution, avoiding the distortion of forced resizing.</figcaption>
         </figure>
 
@@ -280,7 +280,7 @@
         </div>
 
         <figure class="media-block reveal">
-          <img src="assets/images/hybrid_mode_flow_v3.jpg" alt="Flowchart of the LocateAnything hybrid decoding mode: a new object query starts, Fast Mode (PBD) predicts the full box in one parallel step, then the model checks if the format is okay and spatial ambiguity is low — if yes, the box is accepted via the fast path; if no, it falls back to Slow Mode (NTP), sequential token-by-token decoding." loading="lazy">
+          <img src="assets/images/hybrid_mode_flow_v3.gif" alt="Animated flowchart of the LocateAnything hybrid decoding mode: a new object query starts, Fast Mode (PBD) predicts the full box in one parallel step, then the model checks if the format is okay and spatial ambiguity is low — if yes, the box is accepted via the fast path; if no, it falls back to Slow Mode (NTP), sequential token-by-token decoding." loading="lazy">
           <figcaption><span class="fig-num">Fig. 6</span> Hybrid decoding: the model defaults to the fast PBD path, falling back to sequential decoding only when ambiguity is high.</figcaption>
         </figure>
       </div>
@@ -303,7 +303,7 @@
         <div class="section-label">04 — Real-World Applications</div>
         <h2 class="section-title">Where this matters in practice</h2>
         <div class="prose reveal">
-          <img src="assets/images/multitask_grounding_v4.jpg" alt="Three example use cases side by side: Object Detection on a busy city street scene, GUI Grounding on a mobile app sign-in screen, and OCR / Document Layout analysis on a scanned book page — demonstrating LocateAnything handling one model across multiple grounding tasks." loading="lazy" style="border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-md); margin-bottom: var(--space-10);">
+          <img src="assets/images/multitask_grounding_v4.gif" alt="Animated illustration of three example use cases side by side: Object Detection on a busy city street scene, GUI Grounding on a mobile app sign-in screen, and OCR / Document Layout analysis on a scanned book page — demonstrating LocateAnything handling one model across multiple grounding tasks." loading="lazy" style="border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-md); margin-bottom: var(--space-10);">
         </div>
 
         <div class="app-grid reveal">
