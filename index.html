@@ -37,7 +37,6 @@
         <li><a href="#introduction">Intro</a></li>
         <li><a href="#architecture">Architecture</a></li>
         <li><a href="#methods">Methods</a></li>
-        <li><a href="#applications">Applications</a></li>
         <li><a href="#references">References</a></li>
       </ul>
       <button class="theme-toggle" data-theme-toggle aria-label="Switch to light mode">
@@ -72,27 +71,13 @@
       </div>
 
       <div class="hero-meta">
+        <span><strong>Authors:</strong> Ishita Sharma, Ella Simeon, Ibrahim Usmani</span>
         <span><strong>Released:</strong> NVIDIA, May 2026</span>
         <span><strong>Backbone:</strong> Qwen2.5-3B-Instruct + MoonViT</span>
         <span><strong>Key mechanism:</strong> Parallel Box Decoding (PBD)</span>
       </div>
     </div>
   </section>
-
-  <!-- ============ GIF SLOT: hero demo ============ -->
-  <div class="wrap">
-    <div class="gif-slot reveal" id="gif-hero-demo">
-      <svg class="gif-slot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 13l4-4 4 4 6-6 4 4"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><path d="M2 21h20"/></svg>
-      <div class="gif-slot-title">GIF placeholder — live grounding demo</div>
-      <div class="gif-slot-desc">Drop a screen-recording GIF here of LocateAnything drawing a box in response to a typed prompt (e.g. "person wearing glasses"). Save as <code>assets/gifs/demo-grounding.gif</code> and swap the <code>&lt;div id="gif-hero-demo"&gt;</code> block for an <code>&lt;img&gt;</code> tag — see comment in index.html.</div>
-    </div>
-    <!-- To activate: replace the .gif-slot div above with:
-    <figure class="media-block">
-      <img src="assets/gifs/demo-grounding.gif" alt="LocateAnything drawing a bounding box live in response to a text prompt" loading="lazy">
-      <figcaption><span class="fig-num">GIF 1</span> Live demo: typing a natural-language query and watching the model draw the bounding box.</figcaption>
-    </figure>
-    -->
-  </div>
 
   <!-- ============ FIXED TOC (persists across whole page) ============ -->
   <aside class="toc" id="page-toc">
@@ -101,7 +86,14 @@
       <li><a href="#introduction">Introduction</a></li>
       <li><a href="#architecture">Architecture</a></li>
       <li><a href="#methods">Methods</a></li>
-      <li><a href="#applications">Applications</a></li>
+      <li><a href="#training">Training</a></li>
+      <li><a href="#inference-modes">Inference Modes</a></li>
+      <li><a href="#implementation-deployment">Implementation &amp; Deployment</a></li>
+      <li><a href="#related-work">Related Work</a></li>
+      <li><a href="#results">Experiments &amp; Results</a></li>
+      <li><a href="#comparison">Comparison</a></li>
+      <li><a href="#limitations">Limitations &amp; Future Work</a></li>
+      <li><a href="#conclusion">Conclusion</a></li>
       <li><a href="#references">References</a></li>
     </ul>
   </aside>
@@ -110,7 +102,6 @@
   <section id="introduction">
     <div class="wrap sidebar-layout">
       <div>
-        <div class="section-label">01 — Introduction</div>
         <h2 class="section-title">The efficiency problem in visual grounding</h2>
 
         <div class="prose reveal">
@@ -118,7 +109,7 @@
 
           <p class="body-copy">Despite how useful visual grounding systems are, existing vision-language models (VLMs) still face a fundamental efficiency problem. They generate their bounding box coordinates one number at a time, requiring four sequential decoding steps to produce a single box.<sup><a href="#ref-2" class="mono">[2]</a></sup> This token-by-token generation process creates a significant latency bottleneck, particularly in dense scenes with many objects, or in real-time applications like robotics and video analysis where speed is critical.</p>
 
-          <p class="body-copy">For this project I decided to explore <strong>LocateAnything-3B</strong> (<a href="https://huggingface.co/nvidia/LocateAnything-3B" target="_blank" rel="noopener">huggingface.co/nvidia/LocateAnything-3B</a>), a vision-language grounding model released by NVIDIA in May 2026.<sup><a href="#ref-3" class="mono">[3]</a></sup> This model was recently released and is currently one of the top trending models on Hugging Face. LocateAnything is a generalist vision-language model — it is not trained to do just one specific thing, like only identifying cats or only scanning license plates, but instead handles a massive variety of everyday objects and concepts. It is built for one core task: point it at an image or video, describe what you are looking for in natural language, and it instantly pinpoints the exact object or region with a bounding box. This model also supports a variety of capabilities in one package, including open-vocabulary object detection, app navigation by AI agents, document analysis, and can assist robots with their perception of the world around them.<sup><a href="#ref-3" class="mono">[3]</a></sup><sup><a href="#ref-4" class="mono">[4]</a></sup></p>
+          <p class="body-copy">For this project we explored <strong>LocateAnything-3B</strong> (<a href="https://huggingface.co/nvidia/LocateAnything-3B" target="_blank" rel="noopener">huggingface.co/nvidia/LocateAnything-3B</a>), a vision-language grounding model released by NVIDIA in May 2026.<sup><a href="#ref-3" class="mono">[3]</a></sup> This model was recently released and is currently one of the top trending models on Hugging Face. LocateAnything is a generalist vision-language model — it is not trained to do just one specific thing, like only identifying cats or only scanning license plates, but instead handles a massive variety of everyday objects and concepts. It is built for one core task: point it at an image or video, describe what you are looking for in natural language, and it instantly pinpoints the exact object or region with a bounding box. This model also supports a variety of capabilities in one package, including open-vocabulary object detection, app navigation by AI agents, document analysis, and can assist robots with their perception of the world around them.<sup><a href="#ref-3" class="mono">[3]</a></sup><sup><a href="#ref-4" class="mono">[4]</a></sup></p>
 
           <p class="body-copy">The gap LocateAnything fills is the tradeoff between decoding speed and localization quality. Rather than accepting slower, sequential decoding as the price of accurate grounding, the model introduces a new decoding mechanism — <strong>Parallel Box Decoding (PBD)</strong> — that predicts an entire bounding box simultaneously, breaking the autoregressive bottleneck while actually improving accuracy on most benchmarks.<sup><a href="#ref-5" class="mono">[5]</a></sup><sup><a href="#ref-6" class="mono">[6]</a></sup></p>
         </div>
@@ -127,6 +118,15 @@
           <img src="assets/images/visual-grounding-intro.png" alt="Diagram showing a visual grounding model: an input photo of skiers with the text query 'a man in a white hat and red jacket cross-country skiing' passes through a neural network and outputs the same photo with a green bounding box around the matching man." loading="lazy">
           <figcaption><span class="fig-num">Fig. 1</span> Key concept visual: what visual grounding does — a natural-language query goes in, a bounding box comes out.<sup><a href="#ref-7" class="mono">[7]</a></sup></figcaption>
         </figure>
+
+        <div class="media-full media-md reveal">
+          <div class="wrap-inner">
+            <figure class="media-block">
+              <img src="assets/images/multitask_grounding_v4.gif" alt="Animated illustration of three example use cases side by side: Object Detection on a busy city street scene, GUI Grounding on a mobile app sign-in screen, and OCR / Document Layout analysis on a scanned book page — demonstrating LocateAnything handling one model across multiple grounding tasks." loading="lazy">
+              <figcaption><span class="fig-num">Fig. 2</span> One model, multiple grounding tasks: object detection, GUI grounding, and OCR/document layout.</figcaption>
+            </figure>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -135,7 +135,6 @@
   <section class="section-alt" id="architecture">
     <div class="wrap sidebar-layout">
       <div>
-        <div class="section-label">02 — Architecture</div>
         <h2 class="section-title">Four components, one pipeline</h2>
         <p class="lede reveal" style="margin-bottom: var(--space-8);">LocateAnything is built on a standard vision-language model backbone, extended with a specialized output mechanism for efficient box generation.<sup><a href="#ref-3" class="mono">[3]</a></sup></p>
 
@@ -172,37 +171,23 @@
 
         <p class="body-copy reveal" style="margin-top: var(--space-8);">Overall, the model totals 3 billion parameters, making it small enough to be practical for real-time and on-device applications while still matching or exceeding the localization quality of larger specialist models.<sup><a href="#ref-3" class="mono">[3]</a></sup><sup><a href="#ref-5" class="mono">[5]</a></sup></p>
 
-        <div class="media-full reveal">
-          <div class="wrap-inner">
-            <figure class="media-block">
-              <img src="assets/images/locateanything_architecture_v5.gif" alt="Animated diagram of the LocateAnything-3B architecture: Input Image + Text Query feeds into MoonViT-SO-400M Vision Encoder, then MLP Projector, then Qwen2.5 Language Decoder, then Parallel Box Decoding Head. Below, a comparison shows Slow Mode (NTP) taking 6 sequential steps versus Fast Mode (PBD) completing the same box in 1 parallel step, for roughly 10x higher throughput." loading="lazy">
-              <figcaption><span class="fig-num">Fig. 2</span> The four-stage pipeline, and the throughput gap between sequential (NTP) and parallel (PBD) box decoding.</figcaption>
-            </figure>
-          </div>
-        </div>
+        <figure class="media-block reveal">
+          <img src="assets/images/locateanything_architecture_v5.gif" alt="Animated diagram of the LocateAnything-3B architecture: Input Image + Text Query feeds into MoonViT-SO-400M Vision Encoder, then MLP Projector, then Qwen2.5 Language Decoder, then Parallel Box Decoding Head. Below, a comparison shows Slow Mode (NTP) taking 6 sequential steps versus Fast Mode (PBD) completing the same box in 1 parallel step, for roughly 10x higher throughput." loading="lazy">
+          <figcaption><span class="fig-num">Fig. 3</span> The four-stage pipeline, and the throughput gap between sequential (NTP) and parallel (PBD) box decoding.</figcaption>
+        </figure>
 
         <figure class="media-block reveal">
           <img src="assets/images/architecture-output.png" alt="Three-panel diagram: Input (image split into patch tokens plus text query) flows through Model Architecture (MoonViT native-resolution encoder, two-layer MLP projector, Qwen2.5 LLM with multi-token prediction) to produce Output as structured blocks — Semantic Block for text query, Box Block with box start/coordinate/end tokens, repeating Semantic and Box blocks for each detected object, a Negative Block for absent objects, and an End Block." loading="lazy">
-          <figcaption><span class="fig-num">Fig. 3</span> End-to-end view: native-resolution tokenization in, structured block generation out.</figcaption>
+          <figcaption><span class="fig-num">Fig. 4</span> End-to-end view: native-resolution tokenization in, structured block generation out.</figcaption>
         </figure>
       </div>
     </div>
   </section>
 
-  <!-- ============ GIF SLOT: architecture walkthrough ============ -->
-  <div class="wrap">
-    <div class="gif-slot reveal" id="gif-architecture">
-      <svg class="gif-slot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="6" height="6" rx="1"/><rect x="9" y="4" width="6" height="6" rx="1"/><rect x="16" y="10" width="6" height="6" rx="1"/><path d="M8 10h1M15 7h1"/></svg>
-      <div class="gif-slot-title">GIF placeholder — architecture data flow</div>
-      <div class="gif-slot-desc">Good spot for an animated diagram showing tokens flowing left-to-right through the encoder → projector → decoder → PBD head. Save as <code>assets/gifs/architecture-flow.gif</code> and swap this block for an <code>&lt;img&gt;</code> the same way as the hero slot above.</div>
-    </div>
-  </div>
-
   <!-- ============ METHODS ============ -->
   <section id="methods">
     <div class="wrap sidebar-layout">
       <div>
-        <div class="section-label">03 — Methods</div>
         <h2 class="section-title">How Parallel Box Decoding works</h2>
 
         <div class="prose reveal">
@@ -216,10 +201,14 @@
           <p class="body-copy">Each block consists of a <code class="mono" style="background:var(--color-surface-offset); padding: 0.1em 0.4em; border-radius: var(--radius-sm); font-size: 0.9em;">&lt;box&gt;</code> start token, the four quantized coordinate tokens (each normalized to a range of 0–1000), and a <code class="mono" style="background:var(--color-surface-offset); padding: 0.1em 0.4em; border-radius: var(--radius-sm); font-size: 0.9em;">&lt;/box&gt;</code> end token.<sup><a href="#ref-5" class="mono">[5]</a></sup> Instead of predicting these six tokens sequentially, the model predicts the entire block simultaneously in a single parallel decoding step — this is Parallel Box Decoding (PBD).</p>
         </div>
 
-        <figure class="media-block reveal">
-          <img src="assets/images/vision_tokenization_v4.gif" alt="Animated MoonViT native-resolution image tokenization diagram: a raw input image is split into a variable-count grid of native-resolution patches, flattened into a token sequence, passed through MoonViT transformer encoder layers, and output as contextualized visual features for the language model — preserving original aspect ratio without resizing distortion." loading="lazy">
-          <figcaption><span class="fig-num">Fig. 4</span> MoonViT tokenizes images at native resolution, avoiding the distortion of forced resizing.</figcaption>
-        </figure>
+        <div class="media-full media-md reveal">
+          <div class="wrap-inner">
+            <figure class="media-block">
+              <img src="assets/images/vision_tokenization_v4.gif" alt="Animated MoonViT native-resolution image tokenization diagram: a raw input image is split into a variable-count grid of native-resolution patches, flattened into a token sequence, passed through MoonViT transformer encoder layers, and output as contextualized visual features for the language model — preserving original aspect ratio without resizing distortion." loading="lazy">
+              <figcaption><span class="fig-num">Fig. 5</span> MoonViT tokenizes images at native resolution, avoiding the distortion of forced resizing.</figcaption>
+            </figure>
+          </div>
+        </div>
 
         <div class="prose reveal">
           <h3 class="section-title" style="margin-top: var(--space-10);">A different attention mechanism</h3>
@@ -244,18 +233,14 @@
           </div>
         </div>
 
-        <div class="media-full reveal">
-          <div class="wrap-inner">
-            <figure class="media-block">
-              <img src="assets/images/ntp-vs-pbd.png" alt="Comparison diagram: Next Token Prediction generates ref, ship, /ref, box, coordinates one token at a time sequentially. Generic Multi-Token Prediction produces unstructured chunks that mix box boundaries incorrectly. Parallel Box Decoding produces clean box-aligned blocks: ref/ship/ref followed by a complete box token block, repeated cleanly for each object." loading="lazy">
-              <figcaption><span class="fig-num">Fig. 5</span> NTP vs. generic multi-token prediction vs. Parallel Box Decoding — only PBD keeps box tokens cleanly aligned as one unit.</figcaption>
-            </figure>
-          </div>
-        </div>
+        <figure class="media-block reveal">
+          <img src="assets/images/ntp-vs-pbd.png" alt="Comparison diagram: Next Token Prediction generates ref, ship, /ref, box, coordinates one token at a time sequentially. Generic Multi-Token Prediction produces unstructured chunks that mix box boundaries incorrectly. Parallel Box Decoding produces clean box-aligned blocks: ref/ship/ref followed by a complete box token block, repeated cleanly for each object." loading="lazy">
+          <figcaption><span class="fig-num">Fig. 6</span> NTP vs. generic multi-token prediction vs. Parallel Box Decoding — only PBD keeps box tokens cleanly aligned as one unit.</figcaption>
+        </figure>
 
         <div class="prose reveal">
           <h3 class="section-title" style="margin-top: var(--space-10);">Dual-formulation training</h3>
-          <p class="body-copy">To ensure the model retains strong language understanding while gaining this new parallel capability, training uses a dual-objective loss combining a standard token-by-token loss (NTP) and a new block-level parallel loss (MTP), optimized jointly on the same training sequence composed of visual tokens, the query, the NTP target, and the block-level target.<sup><a href="#ref-5" class="mono">[5]</a></sup></p>
+          <p class="body-copy">To ensure the model retains strong language understanding while gaining this new parallel capability, training uses <strong>Dual-Formulation Training</strong> — a dual-objective loss combining a standard token-by-token loss (NTP) and a new block-level parallel loss (MTP), optimized jointly on the same training sequence composed of visual tokens, the query, the NTP target, and the block-level target.<sup><a href="#ref-5" class="mono">[5]</a></sup></p>
         </div>
 
         <h3 class="section-title reveal" style="margin-top: var(--space-12);">The payoff</h3>
@@ -281,48 +266,119 @@
 
         <figure class="media-block reveal">
           <img src="assets/images/hybrid_mode_flow_v3.gif" alt="Animated flowchart of the LocateAnything hybrid decoding mode: a new object query starts, Fast Mode (PBD) predicts the full box in one parallel step, then the model checks if the format is okay and spatial ambiguity is low — if yes, the box is accepted via the fast path; if no, it falls back to Slow Mode (NTP), sequential token-by-token decoding." loading="lazy">
-          <figcaption><span class="fig-num">Fig. 6</span> Hybrid decoding: the model defaults to the fast PBD path, falling back to sequential decoding only when ambiguity is high.</figcaption>
+          <figcaption><span class="fig-num">Fig. 7</span> Hybrid decoding: the model defaults to the fast PBD path, falling back to sequential decoding only when ambiguity is high.</figcaption>
         </figure>
       </div>
     </div>
   </section>
 
-  <!-- ============ GIF SLOT: PBD vs NTP speed comparison ============ -->
-  <div class="wrap">
-    <div class="gif-slot reveal" id="gif-speed-compare">
-      <svg class="gif-slot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
-      <div class="gif-slot-title">GIF placeholder — side-by-side speed comparison</div>
-      <div class="gif-slot-desc">Ideal spot for a split-screen GIF: NTP drawing a box slowly token-by-token on the left, PBD snapping the full box in place instantly on the right. Save as <code>assets/gifs/pbd-vs-ntp-speed.gif</code>.</div>
-    </div>
-  </div>
-
-  <!-- ============ APPLICATIONS ============ -->
-  <section class="section-alt" id="applications">
+  <!-- ============ TRAINING ============ -->
+  <section class="section-alt" id="training">
     <div class="wrap sidebar-layout">
       <div>
-        <div class="section-label">04 — Real-World Applications</div>
-        <h2 class="section-title">Where this matters in practice</h2>
-        <div class="prose reveal">
-          <img src="assets/images/multitask_grounding_v4.gif" alt="Animated illustration of three example use cases side by side: Object Detection on a busy city street scene, GUI Grounding on a mobile app sign-in screen, and OCR / Document Layout analysis on a scanned book page — demonstrating LocateAnything handling one model across multiple grounding tasks." loading="lazy" style="border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-md); margin-bottom: var(--space-10);">
+        <h2 class="section-title">Training</h2>
+        <div class="placeholder-block reveal">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10M18 20V4M6 20v-6"/></svg>
+          <div class="placeholder-title">Content coming soon</div>
+          <div class="placeholder-desc">This section will cover the dual-formulation training strategy, the heterogeneous attention mask, the four-stage training pipeline, and the training dataset (12M images, 138M queries, 785M bounding boxes).</div>
         </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="app-grid reveal">
-          <div class="app-card">
-            <span class="app-tag">Filmmaking</span>
-            <p>Visual effects & rotoscoping — locating a specific character or object across frames to isolate it for compositing or color grading, replacing tedious manual masking.</p>
-          </div>
-          <div class="app-card">
-            <span class="app-tag">Conservation Science</span>
-            <p>Bird identification in videos, such as a user querying "the bird with the yellow chest perched on the lower branch" to track individual animals across camera footage.</p>
-          </div>
-          <div class="app-card">
-            <span class="app-tag">Industrial / Pharma QC</span>
-            <p>Flagging "tablets with visible surface cracks" on a production line without retraining a custom classifier for every new drug formulation.</p>
-          </div>
-          <div class="app-card">
-            <span class="app-tag">Autonomous Driving</span>
-            <p>Automatically identifying hazards such as a person walking across the road versus someone sitting on a bench.</p>
-          </div>
+  <!-- ============ INFERENCE MODES ============ -->
+  <section id="inference-modes">
+    <div class="wrap sidebar-layout">
+      <div>
+        <h2 class="section-title">Inference Modes</h2>
+        <div class="placeholder-block reveal">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+          <div class="placeholder-title">Content coming soon</div>
+          <div class="placeholder-desc">This section will detail the three inference modes: Fast (pure parallel), Hybrid (default), and Slow (autoregressive).</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ IMPLEMENTATION AND DEPLOYMENT ============ -->
+  <section class="section-alt" id="implementation-deployment">
+    <div class="wrap sidebar-layout">
+      <div>
+        <h2 class="section-title">Implementation and Deployment</h2>
+        <div class="placeholder-block reveal">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <div class="placeholder-title">Content coming soon</div>
+          <div class="placeholder-desc">This section will cover the Hugging Face model setup, image and prompt inputs, bounding-box generation, and the Gradio interface workflow — including the embedded live demo.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RELATED WORK ============ -->
+  <section id="related-work">
+    <div class="wrap sidebar-layout">
+      <div>
+        <h2 class="section-title">Related Work</h2>
+        <div class="placeholder-block reveal">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><path d="M9 8.5l1.5 6M15 8.5l-1.5 6"/></svg>
+          <div class="placeholder-title">Content coming soon</div>
+          <div class="placeholder-desc">This section will compare LocateAnything with prior grounding models, including Grounding DINO, Florence-2, Rex-Omni, and Qwen2.5-VL.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EXPERIMENTS & RESULTS ============ -->
+  <section class="section-alt" id="results">
+    <div class="wrap sidebar-layout">
+      <div>
+        <h2 class="section-title">Experiments &amp; Results</h2>
+        <div class="placeholder-block reveal">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
+          <div class="placeholder-title">Content coming soon</div>
+          <div class="placeholder-desc">This section will present benchmark results across LVIS, COCO, VisDrone, ScreenSpot-Pro, and DocLayNet.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARISON ============ -->
+  <section id="comparison">
+    <div class="wrap sidebar-layout">
+      <div>
+        <h2 class="section-title">Comparison</h2>
+        <div class="placeholder-block reveal">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v18M16 3v18M3 8h5M16 8h5M3 16h5M16 16h5"/></svg>
+          <div class="placeholder-title">Content coming soon</div>
+          <div class="placeholder-desc">This section will compare LocateAnything against alternative approaches, weighing speed vs. accuracy tradeoffs.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LIMITATIONS & FUTURE WORK ============ -->
+  <section class="section-alt" id="limitations">
+    <div class="wrap sidebar-layout">
+      <div>
+        <h2 class="section-title">Limitations &amp; Future Work</h2>
+        <div class="placeholder-block reveal">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <div class="placeholder-title">Content coming soon</div>
+          <div class="placeholder-desc">This section will discuss the current limitations of LocateAnything and possible directions for future work.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONCLUSION ============ -->
+  <section id="conclusion">
+    <div class="wrap sidebar-layout">
+      <div>
+        <h2 class="section-title">Conclusion</h2>
+        <div class="placeholder-block reveal">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6 9 17l-5-5"/></svg>
+          <div class="placeholder-title">Content coming soon</div>
+          <div class="placeholder-desc">This section will summarize the project's findings and takeaways.</div>
         </div>
       </div>
     </div>
@@ -332,7 +388,6 @@
   <section id="references">
     <div class="wrap sidebar-layout">
       <div>
-        <div class="section-label">References</div>
         <h2 class="section-title">Sources</h2>
         <ul class="ref-list reveal">
           <li class="ref-item" id="ref-1"><span class="ref-num">[1]</span><span>Datature. "Visual Grounding Explained." <a href="https://datature.com/glossary/visual-grounding" target="_blank" rel="noopener">datature.com/glossary/visual-grounding</a></span></li>
@@ -343,10 +398,6 @@
           <li class="ref-item" id="ref-6"><span class="ref-num">[6]</span><span>YouTube. "Speeding up Vision-Language Models: LocateAnything Decoding Comparison." <a href="https://www.youtube.com/watch?v=9qZiPBlYw9s" target="_blank" rel="noopener">youtube.com/watch?v=9qZiPBlYw9s</a></span></li>
           <li class="ref-item" id="ref-7"><span class="ref-num">[7]</span><span>Xiao, L. "Awesome-Visual-Grounding." GitHub. <a href="https://github.com/linhuixiao/awesome-visual-grounding" target="_blank" rel="noopener">github.com/linhuixiao/awesome-visual-grounding</a></span></li>
           <li class="ref-item" id="ref-8"><span class="ref-num">[8]</span><span>NVIDIA Research. "LocateAnything Project Page." <a href="https://research.nvidia.com/labs/lpr/locate-anything/" target="_blank" rel="noopener">research.nvidia.com/labs/lpr/locate-anything</a></span></li>
-          <li class="ref-item" id="ref-9"><span class="ref-num">[9]</span><span>Wolfe, C. "Decoder-Only Transformers: The Workhorse of Generative LLMs." <a href="https://cameronrwolfe.substack.com/p/decoder-only-transformers-the-workhorse" target="_blank" rel="noopener">cameronrwolfe.substack.com</a></span></li>
-          <li class="ref-item" id="ref-10"><span class="ref-num">[10]</span><span>TrueFoundry. "Transformer Architecture in Large Language Models." <a href="https://www.truefoundry.com/blog/transformer-architecture" target="_blank" rel="noopener">truefoundry.com</a></span></li>
-          <li class="ref-item" id="ref-11"><span class="ref-num">[11]</span><span>Andlukyane. "Parallel Box Decoding and how it makes visual grounding faster." <a href="https://andlukyane.com/blog/paper-review-locateanything" target="_blank" rel="noopener">andlukyane.com</a></span></li>
-          <li class="ref-item" id="ref-12"><span class="ref-num">[12]</span><span>Hugging Face. "LocateAnything Paper Page." <a href="https://huggingface.co/papers/2605.27365" target="_blank" rel="noopener">huggingface.co/papers/2605.27365</a></span></li>
         </ul>
       </div>
     </div>

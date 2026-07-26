@@ -393,9 +393,14 @@ figure.media-block figcaption .fig-num {
 }
 .media-full .wrap-inner { max-width: var(--content-wide); margin-inline: auto; }
 
-/* GIF placeholder blocks */
-.gif-slot {
-  margin-block: var(--space-10);
+/* Medium variant — a bit wider than the 720px reading column, but capped
+   well short of content-wide so it still clears the fixed left TOC sidebar
+   at common laptop widths (e.g. 1280px) instead of running underneath it. */
+.media-full.media-md .wrap-inner { max-width: 820px; }
+
+/* Placeholder blocks for sections whose content hasn't been written yet */
+.placeholder-block {
+  margin-block: var(--space-8);
   border: 1.5px dashed var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
@@ -403,30 +408,22 @@ figure.media-block figcaption .fig-num {
   text-align: center;
   color: var(--color-text-faint);
 }
-.gif-slot-icon {
-  width: 40px; height: 40px;
+.placeholder-icon {
+  width: 36px; height: 36px;
   margin: 0 auto var(--space-4);
   color: var(--color-text-faint);
 }
-.gif-slot-title {
+.placeholder-title {
   font-family: var(--font-display);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   margin-bottom: var(--space-2);
 }
-.gif-slot-desc {
+.placeholder-desc {
   font-size: var(--text-xs);
-  max-width: 46ch;
+  max-width: 52ch;
   margin-inline: auto;
   color: var(--color-text-faint);
-}
-.gif-slot code {
-  font-family: var(--font-display);
-  background: var(--color-surface-offset);
-  padding: 0.15em 0.5em;
-  border-radius: var(--radius-sm);
-  font-size: var(--text-xs);
-  color: var(--color-lime);
 }
 
 /* ---------- content sections ---------- */
@@ -649,41 +646,6 @@ blockquote.pull-quote cite {
   color: var(--color-text-faint);
   font-style: normal;
 }
-
-/* applications grid */
-.app-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-5);
-  margin-top: var(--space-8);
-}
-@media (max-width: 700px) { .app-grid { grid-template-columns: 1fr; } }
-.app-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  position: relative;
-  overflow: hidden;
-}
-.app-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 3px; height: 100%;
-  background: var(--color-primary);
-  opacity: 0.6;
-}
-.app-tag {
-  font-family: var(--font-display);
-  font-size: var(--text-xs);
-  color: var(--color-primary);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: var(--space-3);
-  display: block;
-}
-.app-card p { font-size: var(--text-sm); color: var(--color-text-muted); }
 
 /* references */
 .ref-list { display: flex; flex-direction: column; gap: var(--space-3); }
