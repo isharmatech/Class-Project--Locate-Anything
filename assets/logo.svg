@@ -1,0 +1,10 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="LocateAnything logo">
+  <rect x="2" y="2" width="32" height="32" rx="8" fill="none" stroke="currentColor" stroke-width="2"/>
+  <path d="M18 10 L18 26 M10 18 L26 18" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.5"/>
+  <circle cx="18" cy="18" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/>
+  <circle cx="18" cy="18" r="1.6" fill="currentColor"/>
+  <path d="M6 6 L11 6 M6 6 L6 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <path d="M30 6 L25 6 M30 6 L30 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <path d="M6 30 L11 30 M6 30 L6 25" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <path d="M30 30 L25 30 M30 30 L30 25" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+</svg>
