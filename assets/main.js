@@ -67,4 +67,88 @@
     });
   }, { rootMargin: '-20% 0px -70% 0px' });
   sections.forEach((s) => spyIo.observe(s));
+
+  // Lazy-load the embedded Gradio iframe only when the "Try It Yourself"
+  // section approaches the viewport, then reveal it once loaded. The live
+  // share URL comes from assets/config.js (window.DEMO_CONFIG.GRADIO_LIVE_URL),
+  // which is the one-line edit target on demo day. If that URL is empty or the
+  // iframe fails to load, fall back to the offline message + backup video.
+  const gradioEmbed = document.getElementById('gradio-embed');
+  const gradioFrame = document.getElementById('gradio-frame');
+  const embedLoading = document.getElementById('embed-loading');
+  const embedFallback = document.getElementById('embed-fallback');
+  const backupVideo = document.getElementById('backup-video');
+  const backupStill = document.getElementById('backup-still');
+  const backupImage = document.getElementById('backup-image');
+  const cfg = window.DEMO_CONFIG || {};
+  const liveUrl = (cfg.GRADIO_LIVE_URL || '').trim();
+  const backupVideoUrl = (cfg.BACKUP_VIDEO_URL || '').trim();
+  const backupImageUrl = (cfg.BACKUP_IMAGE_URL || '').trim();
+  const timeoutMs = cfg.IFRAME_LOAD_TIMEOUT_MS || 20000;
+
+  function showBackupImage() {
+    if (!backupStill || !backupImage || !backupImageUrl || !backupStill.hidden) return;
+    backupImage.src = backupImageUrl;
+    backupStill.hidden = false;
+  }
+
+  function showFallback() {
+    if (gradioEmbed) gradioEmbed.hidden = true;
+    if (embedLoading) embedLoading.hidden = true;
+    if (embedFallback) embedFallback.hidden = false;
+    if (backupVideo && backupVideoUrl) {
+      // preload="metadata" so a missing recording errors immediately and we
+      // degrade to the still image instead of leaving a dead player.
+      backupVideo.preload = 'metadata';
+      backupVideo.hidden = false;
+      backupVideo.src = backupVideoUrl;
+      backupVideo.addEventListener('error', () => {
+        backupVideo.hidden = true;
+        showBackupImage();
+      }, { once: true });
+    } else {
+      showBackupImage();
+    }
+  }
+
+  if (gradioEmbed && gradioFrame) {
+    if (!liveUrl) {
+      // No live link configured yet — show the fallback immediately.
+      showFallback();
+    } else {
+      let started = false;
+      let loaded = false;
+      const startLoading = () => {
+        if (started) return;
+        started = true;
+        gradioFrame.src = liveUrl;
+      };
+      const embedIo = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            startLoading();
+            embedIo.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '200px 0px' });
+      embedIo.observe(gradioEmbed);
+
+      const hideLoader = () => {
+        if (loaded) return;
+        loaded = true;
+        gradioEmbed.classList.add('is-loaded');
+      };
+      gradioFrame.addEventListener('load', hideLoader);
+      // If the iframe errors or the share link is unreachable, fall back.
+      gradioFrame.addEventListener('error', showFallback);
+      // Safety net: if the share link hasn't rendered in time, show the fallback
+      // so the section is never stuck on a spinner.
+      window.setTimeout(() => {
+        if (!loaded) showFallback();
+      }, timeoutMs);
+    }
+  } else if (embedFallback) {
+    // No embed markup present — make sure fallback is visible.
+    showFallback();
+  }
 })();

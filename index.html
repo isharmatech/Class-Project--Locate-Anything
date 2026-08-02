@@ -90,8 +90,8 @@
       <li><a href="#inference-modes">Inference Modes</a></li>
       <li><a href="#implementation">Implementation</a></li>
       <li><a href="#demonstration">Demonstration</a></li>
+      <li><a href="#try-it">Try It Yourself</a></li>
       <li><a href="#related-work">Related Work</a></li>
-      <li><a href="#results">Experiments &amp; Results</a></li>
       <li><a href="#comparison">Comparison</a></li>
       <li><a href="#limitations">Limitations &amp; Future Work</a></li>
       <li><a href="#conclusion">Conclusion</a></li>
@@ -401,14 +401,474 @@
     </div>
   </section>
 
-  <!-- ============ DEMONSTRATION ============ -->
+  <!-- ============ DEMONSTRATION (includes Experiments & Results) ============ -->
   <section class="section-alt" id="demonstration">
     <div class="wrap sidebar-layout">
       <div>
         <h2 class="section-title">Demonstration</h2>
         <div class="prose reveal">
           <p class="body-copy">Sample photos will be used to showcase the Gradio program during our presentation. The ability of LocateAnything-3B to identify objects, text, interface elements, and other indicated locations will be demonstrated through various prompts, task choices, and inference modes.</p>
+          <p class="body-copy">The experiments below were run in a Jupyter notebook on the NJIT Wulver GPU cluster and move from ordinary scenes to more difficult, crowded environments so that both the model's strengths and its limitations can be observed. Every test follows the same procedure: load and resize the image, send a grounding phrase or list of categories, parse the model's normalised coordinates (0&ndash;1000), draw the predicted boxes, save the annotated result, and record false positives, missed items, and accurate detections.</p>
         </div>
+
+        <dl class="demo-env reveal">
+          <dt class="demo-env-title">Computing Environment</dt>
+          <div class="demo-env-grid">
+            <dt>Platform</dt>
+            <dd>NJIT Open OnDemand &middot; Wulver cluster</dd>
+            <dt>GPU</dt>
+            <dd>NVIDIA A100 MIG partition (~9.75 GB available)</dd>
+            <dt>Environment</dt>
+            <dd>Conda <code class="mono">locateanything</code> &middot; PyTorch + CUDA</dd>
+            <dt>Checkpoint</dt>
+            <dd><code class="mono">nvidia/LocateAnything-3B</code> (loaded once, reused)</dd>
+          </div>
+        </dl>
+
+        <h3 class="demo-subsection" id="demo-experiments">Experiments</h3>
+        <!-- ===== Test 1 ===== -->
+        <article class="experiment-card reveal" id="test-1">
+          <header class="experiment-header">
+            <span class="experiment-num">01</span>
+            <div>
+              <h3 class="experiment-title">Street-Scene Object Detection</h3>
+              <p class="experiment-purpose">In an outdoor setting with items at various sizes and distances, this test assesses typical open-vocabulary detection.</p>
+            </div>
+          </header>
+          <div class="experiment-meta">
+            <div class="meta-row">
+              <span class="meta-label">Query</span>
+              <div class="meta-content">
+                <div class="query-pills">
+                  <span class="query-pill">person</span>
+                  <span class="query-pill">car</span>
+                  <span class="query-pill">bicycle</span>
+                </div>
+              </div>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Challenge</span>
+              <div class="meta-content"><p>Large foreground items should be easier to find than smaller, partially visible, or near-image-boundary objects.</p></div>
+            </div>
+          </div>
+          <div class="image-pair">
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_009_out_00.png" alt="Outdoor street scene used as the input image for Test 1, showing pedestrians, parked cars, and a bicycle along a sidewalk." loading="lazy">
+              <figcaption><span class="pair-label">Input</span> &middot; 640&times;640 street scene</figcaption>
+            </figure>
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_011_out_00.png" alt="The same street scene annotated with red bounding boxes around detected people, cars, and a bicycle." loading="lazy">
+              <figcaption><span class="pair-label">Annotated</span> &middot; 10 boxes drawn across person, car, and bicycle</figcaption>
+            </figure>
+          </div>
+          <div class="experiment-result">
+            <h4 class="result-title">Results &amp; Observations</h4>
+            <p>The model produced <strong>11 bounding boxes</strong> across all three requested categories. People, automobiles, and bicycles were among the output, demonstrating that the model could react to many category labels in a single request.</p>
+            <p>With a reported rate of around <strong>0.42 boxes per second</strong>, the recorded generation time was roughly <strong>26.20 seconds</strong>. Some predictions sat close to the margins of the picture, so the annotated output should be visually examined for boxes that could be missing or abnormally big.</p>
+            <p>Because the specified categories differ visually from one another, this test offers a helpful baseline.</p>
+          </div>
+        </article>
+        <!-- ===== Test 2 ===== -->
+        <article class="experiment-card reveal" id="test-2">
+          <header class="experiment-header">
+            <span class="experiment-num">02</span>
+            <div>
+              <h3 class="experiment-title">Office and Desk Object Detection</h3>
+              <p class="experiment-purpose">This test assesses the model in an interior workplace scenario with common objects that could overlap or appear at varying sizes.</p>
+            </div>
+          </header>
+          <div class="experiment-meta">
+            <div class="meta-row">
+              <span class="meta-label">Query</span>
+              <div class="meta-content">
+                <div class="query-pills">
+                  <span class="query-pill">computer</span>
+                  <span class="query-pill">mouse</span>
+                  <span class="query-pill">cup</span>
+                  <span class="query-pill">keyboard</span>
+                  <span class="query-pill">plant</span>
+                </div>
+              </div>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Challenge</span>
+              <div class="meta-content"><p>Little items like a mouse or cup might be harder to find than a large computer, and several plants may appear at varying sizes and locations.</p></div>
+            </div>
+          </div>
+          <div class="image-pair">
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_015_out_00.png" alt="Office desk scene used as the input image for Test 2, showing a computer monitor, keyboard, mouse, cup, and plants." loading="lazy">
+              <figcaption><span class="pair-label">Input</span> &middot; 800&times;800 office/desk scene</figcaption>
+            </figure>
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_016_out_02.png" alt="The same office desk annotated with red bounding boxes around the computer, mouse, cup, keyboard, and plants." loading="lazy">
+              <figcaption><span class="pair-label">Annotated</span> &middot; 7 boxes drawn despite a CUDA memory warning</figcaption>
+            </figure>
+          </div>
+          <div class="experiment-result">
+            <h4 class="result-title">Results &amp; Observations</h4>
+            <p>The office-scene test generated <strong>7 bounding boxes</strong>. One computer, one mouse, one cup, one keyboard, and several plant forecasts were among the output.</p>
+            <p>The run reported around <strong>3.28 boxes per second</strong> and finished in about <strong>2.13 seconds</strong>. Despite the appearance of a CUDA memory-allocation warning, the annotation was stored as <code class="mono">desk_detection_result.jpg</code> and the inference still finished.</p>
+            <p>This image generated a cleaner output and fewer predictions than the street scene. The model performed best on large, clearly visible objects, while smaller or partially obscured things required deeper visual assessment.</p>
+          </div>
+        </article>
+        <!-- ===== Test 3 ===== -->
+        <article class="experiment-card reveal" id="test-3">
+          <header class="experiment-header">
+            <span class="experiment-num">03</span>
+            <div>
+              <h3 class="experiment-title">Dense Grocery-Shelf Detection</h3>
+              <p class="experiment-purpose">This test assesses detection in a crowded shop environment with several little, aesthetically similar objects.</p>
+            </div>
+          </header>
+          <div class="experiment-meta">
+            <div class="meta-row">
+              <span class="meta-label">Query</span>
+              <div class="meta-content">
+                <div class="query-pills">
+                  <span class="query-pill">pasta box</span>
+                </div>
+              </div>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Challenge</span>
+              <div class="meta-content"><p>Repeated rectangular packaging, similar colours, tiny labels, overlapping goods, and closely spaced items fill the shelf, making it harder to distinguish authentic pasta from visually identical soup, broth, and other food packaging. The image is shrunk to consume less GPU memory and cropped to remove the bottom watermark.</p></div>
+            </div>
+          </div>
+          <div class="image-pair">
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_019_out_00.png" alt="Dense grocery shelf used as the input image for Test 3, packed with many similarly shaped boxes and cartons." loading="lazy">
+              <figcaption><span class="pair-label">Input</span> &middot; 512&times;331 cropped grocery shelf</figcaption>
+            </figure>
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_021_out_00.png" alt="The same grocery shelf annotated with red bounding boxes around items the model labelled as pasta boxes." loading="lazy">
+              <figcaption><span class="pair-label">Annotated</span> &middot; 20 parsed boxes (model reported 21)</figcaption>
+            </figure>
+          </div>
+          <div class="experiment-result">
+            <h4 class="result-title">Results &amp; Observations</h4>
+            <p>The parser showed <strong>20 complete predictions</strong> from the produced text, although the model statistics indicated <strong>21 boxes</strong>. One last prediction may not have been properly reflected in the parsed result since the output exceeded the <code class="mono">max_new_tokens=128</code> limit.</p>
+            <p>Particularly on the left side of the shelf, the model detected a number of packaged and cup-shaped pasta items. However, the crowded scene also produced classification mistakes:</p>
+            <ul>
+              <li>A few boxed goods, such as soup or broth, were labelled as pasta boxes.</li>
+              <li>On the lower-right shelf, a number of real pasta items were overlooked.</li>
+              <li>The wide category query did not pick the displayed Whole Wheat Elbows box.</li>
+              <li>Similar packaging resulted in missed detections as well as false positives.</li>
+            </ul>
+            <p>Although dense layouts and similar packing make exact category separation more challenging, this experiment shows that LocateAnything can recognize repeated items in a congested situation.</p>
+          </div>
+        </article>
+        <!-- ===== Test 4 ===== -->
+        <article class="experiment-card reveal" id="test-4">
+          <header class="experiment-header">
+            <span class="experiment-num">04</span>
+            <div>
+              <h3 class="experiment-title">Broad Phrase Grounding</h3>
+              <p class="experiment-purpose">In this test, the objective is to locate a single object from a natural-language description instead of identifying every object in a category.</p>
+            </div>
+          </header>
+          <div class="experiment-meta">
+            <div class="meta-row">
+              <span class="meta-label">Prompt</span>
+              <div class="meta-content"><span class="query-phrase">a pasta box on the bottom shelf</span></div>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Setup</span>
+              <div class="meta-content"><p>To exclude irrelevant goods and lessen the quantity of visual data the model processes, the picture is cropped to the lower shelf.</p></div>
+            </div>
+          </div>
+          <div class="image-pair">
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_024_out_00.png" alt="Lower shelf of the grocery image cropped to a thin horizontal strip for Test 4." loading="lazy">
+              <figcaption><span class="pair-label">Input</span> &middot; 512&times;124 lower-shelf crop</figcaption>
+            </figure>
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_026_out_00.png" alt="The cropped lower shelf with a single red bounding box drawn around a neighbouring chili product rather than the intended pasta box." loading="lazy">
+              <figcaption><span class="pair-label">Annotated</span> &middot; 1 box &mdash; selected the wrong item</figcaption>
+            </figure>
+          </div>
+          <div class="experiment-result">
+            <h4 class="result-title">Results &amp; Observations</h4>
+            <p>Instead of choosing the specified Whole Wheat Elbows pasta box, the model chose a neighbouring chilli product and returned <strong>one bounding box</strong>.</p>
+            <p>Although the shelf position was included in the description, there was insufficient information to set the target apart from other rectangular packages. This outcome shows that a good bounding box does not necessarily imply proper grounding of the intended item.</p>
+          </div>
+        </article>
+        <!-- ===== Test 5 ===== -->
+        <article class="experiment-card reveal" id="test-5">
+          <header class="experiment-header">
+            <span class="experiment-num">05</span>
+            <div>
+              <h3 class="experiment-title">Refined Phrase Grounding</h3>
+              <p class="experiment-purpose">This test looks at whether grounding accuracy is improved by a more precise description and a tighter crop.</p>
+            </div>
+          </header>
+          <div class="experiment-meta">
+            <div class="meta-row">
+              <span class="meta-label">Refined Prompt</span>
+              <div class="meta-content"><span class="query-phrase">the blue and yellow pasta box labeled Whole Wheat Elbows</span></div>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Improvements</span>
+              <div class="meta-content">
+                <p>The updated prompt adds the colours of the packaging, the kind of product, visible label writing, and a smaller visual area with fewer distracting items. The aim is less unclear due to the additional language and visual indications.</p>
+              </div>
+            </div>
+          </div>
+          <div class="image-pair">
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_029_out_00.png" alt="Tight crop of the grocery shelf focused on the Whole Wheat Elbows pasta box region for Test 5." loading="lazy">
+              <figcaption><span class="pair-label">Input</span> &middot; 351&times;230 tight crop</figcaption>
+            </figure>
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_031_out_00.png" alt="The tight crop annotated with a single red bounding box around the correct Whole Wheat Elbows pasta box." loading="lazy">
+              <figcaption><span class="pair-label">Annotated</span> &middot; 1 box on the correct target</figcaption>
+            </figure>
+          </div>
+          <div class="experiment-result">
+            <h4 class="result-title">Results &amp; Observations</h4>
+            <p>The improved test returned <strong>one bounding box</strong> surrounding the specified Whole Wheat Elbows product region.</p>
+            <p>The more specific language and narrower crop yielded a more focused outcome than the general request. This implies that visual grounding can be enhanced when the trigger incorporates unique colours, language, and object characteristics, and when irrelevant elements of the scene are eliminated.</p>
+          </div>
+        </article>
+        <!-- ===== Test 6 ===== -->
+        <article class="experiment-card reveal" id="test-6">
+          <header class="experiment-header">
+            <span class="experiment-num">06</span>
+            <div>
+              <h3 class="experiment-title">Clothing-Store Scene &amp; Query Refinement</h3>
+              <p class="experiment-purpose">This test assesses the model in a different packed store setting with apparel and accessories, and looks at whether detection quality can be improved by altering the item categories.</p>
+            </div>
+          </header>
+
+          <h4 class="subsection-title" style="margin-top: var(--space-6);">Initial Query</h4>
+          <div class="experiment-meta">
+            <div class="meta-row">
+              <span class="meta-label">Prompt</span>
+              <div class="meta-content">
+                <div class="query-pills">
+                  <span class="query-pill">clothing</span>
+                  <span class="query-pill">glasses</span>
+                  <span class="query-pill">jewelry</span>
+                </div>
+              </div>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Note</span>
+              <div class="meta-content"><p>The code passes this as <strong>one unified description</strong> instead of producing distinct category-by-category results for clothes, glasses, and jewellery, so regions match the whole phrase.</p></div>
+            </div>
+          </div>
+          <div class="image-pair">
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_034_out_00.png" alt="Clothing store scene used as the input image for Test 6, showing racks of clothing, accessories, and display areas." loading="lazy">
+              <figcaption><span class="pair-label">Input</span> &middot; 512&times;300 clothing-store crop</figcaption>
+            </figure>
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_036_out_00.png" alt="The clothing store annotated with red bounding boxes around the items detected using the initial clothing, glasses, jewelry query." loading="lazy">
+              <figcaption><span class="pair-label">Annotated</span> &middot; 8 boxes &mdash; mostly large clothing</figcaption>
+            </figure>
+          </div>
+          <div class="experiment-result">
+            <h4 class="result-title">Initial Results</h4>
+            <p>Throughout the store, the model identified a number of apparel products and racks. The majority of forecasts concentrated on large, eye-catching clothing. However, because jewellery and spectacles were tiny, hard to identify, and not readily apparent at the enlarged image quality, no boxes containing those items were returned.</p>
+            <p>Several of the clothes boxes did not designate specific outfits; instead, they spanned whole rack portions or overlapped.</p>
+          </div>
+
+          <h4 class="subsection-title" style="margin-top: var(--space-10);">Refined Query</h4>
+          <div class="experiment-meta">
+            <div class="meta-row">
+              <span class="meta-label">Prompt</span>
+              <div class="meta-content">
+                <div class="query-pills">
+                  <span class="query-pill">dress</span>
+                  <span class="query-pill">shirt</span>
+                  <span class="query-pill">jacket</span>
+                  <span class="query-pill">clothing rack</span>
+                  <span class="query-pill">handbag</span>
+                </div>
+              </div>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Change</span>
+              <div class="meta-content"><p>Objects that were easier to see in the picture were added to the query, replacing the small, ambiguous accessories with larger, visually distinct categories.</p></div>
+            </div>
+          </div>
+          <div class="image-pair">
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_034_out_00.png" alt="The same clothing store scene reused as input for the refined Test 6 query." loading="lazy">
+              <figcaption><span class="pair-label">Input</span> &middot; same 512&times;300 source crop</figcaption>
+            </figure>
+            <figure class="media-block">
+              <img src="assets/images/demo/demo_cell_038_out_02.png" alt="The clothing store annotated with red bounding boxes around dresses, shirts, jackets, clothing racks, and handbags detected using the refined query." loading="lazy">
+              <figcaption><span class="pair-label">Annotated</span> &middot; 8 more specific boxes</figcaption>
+            </figure>
+          </div>
+          <div class="experiment-result">
+            <h4 class="result-title">Refined Results &amp; Observation</h4>
+            <p>Results from the enhanced query were more precise and insightful. The model recognised various areas with hanging garments, a shirt, a jacket, purses, and clothes racks. Smaller spaces for clothing and handbags were found on the left and center of the picture, while the enormous garment rack on the right was plainly visible.</p>
+            <p>Particularly in the congested left half of the store, several bounding boxes still comprised groupings of products or overlapped.</p>
+            <p>Since the chosen categories were larger, more visually distinct, and plainly visible in the image, the enhanced query performed better. The original test revealed that small accessories and wide categories can be challenging to identify, while the improved test indicated that using image-appropriate and specific item labels can increase recognition quality.</p>
+            <p>Overall, Test 6 demonstrates that LocateAnything-3B is sensitive to both prompt selection and scene complexity. More precise, comprehensive, and practical bounding-box predictions were obtained by fine-tuning the required categories.</p>
+          </div>
+        </article>
+        <h3 class="demo-subsection" id="results-summary">Results Summary</h3>
+        <div class="table-wrap results-summary reveal">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Test</th>
+                <th>Scene &amp; Task</th>
+                <th>Prompt</th>
+                <th>Main Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Street-scene object detection</td>
+                <td><code class="mono">person</code>, <code class="mono">car</code>, <code class="mono">bicycle</code></td>
+                <td>Detected 11 objects across all three requested categories</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Office-scene object detection</td>
+                <td><code class="mono">computer</code>, <code class="mono">mouse</code>, <code class="mono">cup</code>, <code class="mono">keyboard</code>, <code class="mono">plant</code></td>
+                <td>Detected 7 objects; inference completed despite a CUDA memory warning</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Dense grocery-shelf detection</td>
+                <td><code class="mono">pasta box</code></td>
+                <td>Parsed 20 boxes, but produced false positives and missed several actual pasta products</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Broad phrase grounding</td>
+                <td><code class="mono">a pasta box on the bottom shelf</code></td>
+                <td>Returned one box, but selected a nearby chili product instead of the intended pasta box</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Refined phrase grounding</td>
+                <td><code class="mono">the blue and yellow pasta box labeled Whole Wheat Elbows</code></td>
+                <td>A tighter crop and more detailed prompt produced a more accurate, targeted prediction</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Clothing-store detection &amp; query refinement</td>
+                <td>Initial: <code class="mono">clothing</code>, <code class="mono">glasses</code>, <code class="mono">jewelry</code>; Refined: <code class="mono">dress</code>, <code class="mono">shirt</code>, <code class="mono">jacket</code>, <code class="mono">clothing rack</code>, <code class="mono">handbag</code></td>
+                <td>The initial query mainly detected clothing, while the refined query produced more specific and useful detections</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="demo-subsection" id="gpu-memory">GPU-Memory Considerations</h3>
+        <div class="prose reveal">
+          <p class="body-copy">The Wulver session provided approximately 9.75 GB of GPU memory. Dense scenes and repeated inference calls placed significant pressure on this allocation.</p>
+          <p class="body-copy">During experimentation, a broader grocery query caused a CUDA out-of-memory error after the earlier dense prediction had already consumed most of the available memory. The final workflow reduced memory use by:</p>
+        </div>
+        <ul class="demo-bullets reveal">
+          <li>Loading the model only once</li>
+          <li>Resizing large images</li>
+          <li>Cropping images to the relevant region</li>
+          <li>Using focused categories or phrases</li>
+          <li>Limiting <code class="mono">max_new_tokens</code></li>
+          <li>Restarting the kernel when GPU memory remained occupied</li>
+        </ul>
+        <div class="prose reveal">
+          <p class="body-copy">The out-of-memory event was a hardware-resource limitation and was not treated as a completed model result.</p>
+        </div>
+
+        <h3 class="demo-subsection" id="main-findings">Main Findings</h3>
+        <ol class="findings-list reveal">
+          <li class="finding-item">
+            <p><strong>Clear categories performed well in everyday scenes.</strong> The street and office photographs yielded reasonable multi-object detections.</p>
+          </li>
+          <li class="finding-item">
+            <p><strong>Dense situations contributed to category confusion.</strong> Similar supermarket containers led to false positives and missing pasta goods.</p>
+          </li>
+          <li class="finding-item">
+            <p><strong>Prompt specificity mattered.</strong> The particular color-and-label prompt gave a more focused result, but the general pasta-box phrase picked the incorrect object.</p>
+          </li>
+          <li class="finding-item">
+            <p><strong>Image cropping was helpful.</strong> Removing irrelevant areas decreased GPU memory use and ambiguity.</p>
+          </li>
+          <li class="finding-item">
+            <p><strong>Improved detection was achieved by using categories that are readily apparent.</strong> In the context of clothes stores, predictions were more accurate when conspicuous items like shirts, coats, clothing racks, and purses were substituted for tiny or ambiguous accessories.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRY IT YOURSELF (embedded Gradio app) ============ -->
+  <section id="try-it">
+    <div class="wrap sidebar-layout">
+      <div>
+        <h2 class="section-title">Try It Yourself</h2>
+        <div class="prose reveal">
+          <p class="body-copy">The interactive demo below is the same Gradio app from <code class="mono">app.py</code> in the project repository, served live from a free Google Colab T4 GPU session. Upload an image, choose a grounding task, describe what to locate, pick an inference mode, and run LocateAnything-3B directly in the browser &mdash; no local setup required.</p>
+          <p class="body-copy">Tasks mirror the experiments above: <strong>Object Detection</strong> takes a comma-separated category list (e.g. <code class="mono">person, car, bus</code>), <strong>Phrase Grounding</strong> takes a natural-language description (e.g. <em>the person wearing a red shirt</em>), <strong>OCR / Text Detection</strong> needs no description, <strong>GUI Grounding</strong> targets an interface element, and <strong>Pointing</strong> returns a single coordinate. The default <code class="mono">hybrid</code> inference mode balances speed and quality; <code class="mono">fast</code> uses pure parallel decoding and <code class="mono">slow</code> falls back to sequential autoregressive decoding.</p>
+          <p class="body-copy"><strong>Note:</strong> the live share link is only active while a Colab session is running. If the demo below is offline, the page automatically falls back to a recorded walkthrough &mdash; see the pre-presentation checklist at the bottom of this section to bring it back online.</p>
+        </div>
+
+        <div class="gradio-embed reveal" id="gradio-embed">
+          <iframe
+            id="gradio-frame"
+            title="Locate Anything Gradio demo"
+            loading="lazy"
+            allow="autoplay; camera; microphone; clipboard-write"
+            referrerpolicy="no-referrer">
+          </iframe>
+          <div class="embed-loading" id="embed-loading">
+            <div>
+              <div class="spinner" aria-hidden="true"></div>
+              <div class="loading-title">Loading the Gradio demo&hellip;</div>
+              <div class="loading-sub">The first request wakes the Colab session, which can take 30&ndash;60 seconds while the model loads onto the T4 GPU.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fallback shown when GRADIO_LIVE_URL is empty or the iframe fails to load -->
+        <div class="embed-fallback" id="embed-fallback" hidden>
+          <div class="fallback-icon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          </div>
+          <h3 class="fallback-title">Live demo is currently offline</h3>
+          <p class="fallback-desc">The Colab share link is only active while a session is running. Watch the recorded walkthrough below, or open <code class="mono">colab_demo.ipynb</code> in Colab to spin up a fresh live session.</p>
+          <video id="backup-video" class="backup-video" controls preload="none" hidden>
+            <track kind="descriptions" srclang="en" label="Recorded demo walkthrough">
+          </video>
+          <figure class="backup-still" id="backup-still" hidden>
+            <img id="backup-image" class="backup-image" alt="Recorded demo result: a street scene annotated with red bounding boxes around detected people, cars, and a bicycle." loading="lazy">
+            <figcaption class="backup-caption">Sample output &middot; object detection on a street scene (10 boxes across person, car, bicycle)</figcaption>
+          </figure>
+        </div>
+
+        <p class="embed-note">
+          <svg class="embed-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <span>The live link changes every time the Colab notebook is re-run. To update it, paste the fresh <code class="mono">https://xxxxx.gradio.live</code> URL into <code class="mono">GRADIO_LIVE_URL</code> in <code class="mono">assets/config.js</code>, then commit and push so GitHub Pages rebuilds. See the checklist below.</span>
+        </p>
+
+        <details class="run-panel reveal">
+          <summary>
+            <span>Pre-presentation checklist &mdash; bring the live demo online</span>
+            <span class="run-panel-hint">~10 min before presenting &middot; click to expand</span>
+            <svg class="run-panel-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <div class="run-panel-body">
+            <ol class="checklist">
+              <li><strong>Open</strong> <code class="mono">colab_demo.ipynb</code> in Google Colab (File &gt; Upload notebook, or open from the repo).</li>
+              <li><strong>Set the runtime</strong> to a T4 GPU: <em>Runtime &gt; Change runtime type &gt; Hardware accelerator = T4 GPU</em>.</li>
+              <li><strong>Run all cells top to bottom.</strong> The model-load cell takes a few minutes the first time (it downloads the 3B checkpoint); subsequent runs are faster.</li>
+              <li><strong>Copy</strong> the <code class="mono">https://xxxxx.gradio.live</code> URL printed by the final launch cell.</li>
+              <li><strong>Paste</strong> it into <code class="mono">GRADIO_LIVE_URL</code> in <code class="mono">assets/config.js</code> (the one-line edit target).</li>
+              <li><strong>Commit and push</strong> so GitHub Pages rebuilds with the live link.</li>
+              <li><strong>Keep the Colab tab open and active</strong> for the entire presentation. Colab kills idle sessions after ~90 min and caps sessions at ~12 h.</li>
+              <li><strong>If the session drops</strong> during the demo, re-run the <em>Load model</em> and <em>Launch</em> cells to get a fresh link, paste it into <code class="mono">config.js</code>, and push again.</li>
+            </ol>
+          </div>
+        </details>
       </div>
     </div>
   </section>
@@ -422,20 +882,6 @@
           <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><path d="M9 8.5l1.5 6M15 8.5l-1.5 6"/></svg>
           <div class="placeholder-title">Content coming soon</div>
           <div class="placeholder-desc">This section will compare LocateAnything with prior grounding models, including Grounding DINO, Florence-2, Rex-Omni, and Qwen2.5-VL.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ EXPERIMENTS & RESULTS ============ -->
-  <section class="section-alt" id="results">
-    <div class="wrap sidebar-layout">
-      <div>
-        <h2 class="section-title">Experiments &amp; Results</h2>
-        <div class="placeholder-block reveal">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
-          <div class="placeholder-title">Content coming soon</div>
-          <div class="placeholder-desc">This section will present benchmark results across LVIS, COCO, VisDrone, ScreenSpot-Pro, and DocLayNet.</div>
         </div>
       </div>
     </div>
@@ -513,6 +959,7 @@
   </div>
 </footer>
 
+<script src="assets/config.js"></script>
 <script src="assets/main.js"></script>
 <script data-pplx-inline-edit>
 (function () {
