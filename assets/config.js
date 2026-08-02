@@ -13,7 +13,7 @@
 
 window.DEMO_CONFIG = {
   // PASTE_GRADIO_LIVE_URL_HERE  <- replace with the live share link from Colab
-  GRADIO_LIVE_URL: "",
+  GRADIO_LIVE_URL: "https://8c56ebcec9f2080125.gradio.live/",
 
   // Backup recording shown when the live link is offline.
   // Drop a screen-recording export at assets/demo-walkthrough.mp4
