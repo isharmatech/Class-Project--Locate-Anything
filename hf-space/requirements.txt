@@ -6,3 +6,8 @@ opencv-python-headless==4.11.0.86
 peft
 huggingface_hub==0.36.0
 Pillow
+# Required by the model's custom processor/modeling code (transformers'
+# check_imports scans processing_locateanything.py and modeling_locateanything.py
+# for imports and refuses to load the model until all are installed).
+torchvision
+decord==0.6.0

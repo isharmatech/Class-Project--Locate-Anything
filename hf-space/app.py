@@ -300,6 +300,23 @@ def build_demo() -> gr.Blocks:
 
                 run_button = gr.Button("Locate objects", variant="primary")
 
+                # Pre-loaded example images so visitors can try the demo without
+                # uploading their own. Each example auto-fills the image, task, and
+                # description to reproduce the experiments from the project report.
+                gr.Examples(
+                    examples=[
+                        ["assets/street_scene.jpg", "Object Detection", "person, car, bicycle", "hybrid"],
+                        ["assets/desk_scene.jpg", "Object Detection", "computer, mouse, cup, keyboard, plant", "hybrid"],
+                        ["assets/grocery_shelf.jpg", "Phrase Grounding", "the blue and yellow pasta box labeled Whole Wheat Elbows", "hybrid"],
+                        ["assets/clothing_store.jpg", "Object Detection", "dress, shirt, jacket, clothing rack, handbag", "hybrid"],
+                    ],
+                    inputs=[image_input, task_input, description_input, mode_input],
+                    label="Examples — click one to load it, then press Locate objects",
+                    # Don't pre-compute/run at startup — that would burn ZeroGPU quota.
+                    # Clicking an example only fills the inputs; the user then hits the button.
+                    cache_examples=False,
+                )
+
             with gr.Column():
                 output_image = gr.Image(type="pil", label="Detected result")
                 generated_prompt = gr.Textbox(label="Prompt sent to model", lines=2)

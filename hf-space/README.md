@@ -2,7 +2,7 @@
 title: Locate Anything 3B Demo
 emoji: 🎯
 colorFrom: indigo
-colorTo: teal
+colorTo: green
 sdk: gradio
 sdk_version: "6.16.0"
 python_version: "3.12"
