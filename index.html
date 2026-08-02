@@ -847,26 +847,8 @@
 
         <p class="embed-note">
           <svg class="embed-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-          <span>The demo is hosted on a persistent Hugging Face Space, so the URL in <code class="mono">assets/config.js</code> does not change between runs &mdash; no demo-day scramble. If you ever need to repoint it (e.g. a new Space name), edit <code class="mono">GRADIO_LIVE_URL</code> and push.</span>
+          <span>If the demo above doesn't run, it's most likely because the Hugging Face Space has exceeded its daily ZeroGPU runs limit. The free GPU quota resets daily &mdash; try again later, or check the Space status at <a href="https://huggingface.co/spaces/cyberfrost7/locate-anything-demo" target="_blank" rel="noopener">huggingface.co/spaces/cyberfrost7/locate-anything-demo</a> and restart it if needed.</span>
         </p>
-
-        <details class="run-panel reveal">
-          <summary>
-            <span>Pre-presentation checklist &mdash; bring the live demo online</span>
-            <span class="run-panel-hint">~2 min before presenting &middot; click to expand</span>
-            <svg class="run-panel-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-          </summary>
-          <div class="run-panel-body">
-            <ol class="checklist">
-              <li><strong>Open</strong> the Space at <code class="mono">huggingface.co/spaces/cyberfrost7/locate-anything-demo</code>.</li>
-              <li>If the status is <em>Paused</em>, click <strong>Restart</strong> (top-right). Wait for the status to read <em>Running</em>.</li>
-              <li><strong>Refresh this page</strong> &mdash; the Try It Yourself iframe will load the live Gradio app.</li>
-              <li><strong>Send one warm-up request</strong> before presenting so the 3B checkpoint is already on the GPU (the first request takes ~30&ndash;60 s; later requests are fast).</li>
-              <li><strong>That's it.</strong> The Space URL is persistent, so no link-swapping or pushing is needed on demo day.</li>
-            </ol>
-            <p class="body-copy" style="margin-top: var(--space-4); font-size: var(--text-sm); color: var(--color-text-muted);">ZeroGPU gives Pro accounts 40 GPU-minutes/day (highest queue priority). A class presentation typically uses a few minutes, so this is plenty. If you exhaust the daily quota, extra usage is billed at $1 per 10 minutes against pre-paid credits.</p>
-          </div>
-        </details>
       </div>
     </div>
   </section>
