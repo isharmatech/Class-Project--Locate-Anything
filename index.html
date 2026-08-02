@@ -88,7 +88,8 @@
       <li><a href="#methods">Methods</a></li>
       <li><a href="#training">Training</a></li>
       <li><a href="#inference-modes">Inference Modes</a></li>
-      <li><a href="#implementation-deployment">Implementation &amp; Deployment</a></li>
+      <li><a href="#implementation">Implementation</a></li>
+      <li><a href="#demonstration">Demonstration</a></li>
       <li><a href="#related-work">Related Work</a></li>
       <li><a href="#results">Experiments &amp; Results</a></li>
       <li><a href="#comparison">Comparison</a></li>
@@ -277,38 +278,136 @@
     <div class="wrap sidebar-layout">
       <div>
         <h2 class="section-title">Training</h2>
-        <div class="placeholder-block reveal">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10M18 20V4M6 20v-6"/></svg>
-          <div class="placeholder-title">Content coming soon</div>
-          <div class="placeholder-desc">This section will cover the dual-formulation training strategy, the heterogeneous attention mask, the four-stage training pipeline, and the training dataset (12M images, 138M queries, 785M bounding boxes).</div>
+
+        <h3 class="section-title" style="margin-top: var(--space-8);">Training Strategy</h3>
+        <div class="prose reveal">
+          <p class="body-copy">The training process for LocateAnything-3B consists of four stages. While the last two steps concentrate the model for object identification, visual grounding, and dense scenes, the first two levels establish broad visual-language understanding. This method enables the model to retain a wide range of reasoning skills prior to applying significant bounding-box supervision.</p>
+
+          <p class="body-copy">Both parallel and autoregressive decoding are supported by the model through dual-formulation training. While Multi-Token Prediction (MTP) trains the language model to create bounding box coordinates in parallel, Next-Token Prediction (NTP) maintains the model's capacity to generate tokens sequentially. One model checkpoint may enable Fast, Hybrid, and Slow inference modes since both objectives are trained simultaneously.<sup><a href="#ref-5" class="mono">[5]</a></sup></p>
+
+          <p class="body-copy">The various prediction streams are controlled by a heterogeneous attention mask. Causal attention is used in the prompt, visual context, and NTP output. Block-causal attention between bounding boxes and bidirectional attention inside each box are used in the MTP output. To avoid information leakage between their prediction goals, the NTP and MTP outputs are kept apart.<sup><a href="#ref-5" class="mono">[5]</a></sup></p>
+        </div>
+
+        <h4 class="subsection-title">Four-Stage Training Pipeline</h4>
+        <div class="table-wrap reveal">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Main Objective</th>
+                <th>Training Data</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Align visual features with the language decoder</td>
+                <td>Image-caption data</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Develop broad multimodal understanding</td>
+                <td>VQA, OCR, charts, science, mathematics, code, counting, and instruction data</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Specialize in detection and grounding</td>
+                <td>Object detection, GUI grounding, text localization, document analysis, and point localization</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Improve performance in dense scenes</td>
+                <td>Previous training data combined with dense-object datasets</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="prose reveal">
+          <p class="body-copy">To align the MoonViT visual characteristics with the Qwen2.5 language decoder, only the MLP projector is trained during Stage 1. Stage 2 involves training the full model on a wide range of multimodal tasks. Stage 3 presents detection and grounding supervision, while Stage 4 leverages dense-scene datasets like MOT20Det and SKU110K to concentrate on tiny, overlapping, and visually comparable objects.<sup><a href="#ref-5" class="mono">[5]</a></sup></p>
+        </div>
+
+        <h3 class="section-title" style="margin-top: var(--space-12);">Training Data</h3>
+        <div class="prose reveal">
+          <p class="body-copy">More than 12 million photos, 138 million natural language searches, and 785 million bounding boxes may be found in LocateAnything-Data. The dataset's emphasis on complex scenes, where a single image may include several labelled items, is reflected in the huge number of bounding boxes relative to images.<sup><a href="#ref-3" class="mono">[3]</a></sup><sup><a href="#ref-5" class="mono">[5]</a></sup></p>
+
+          <p class="body-copy">General object detection, referring-expression comprehension, GUI grounding, text localization, document and scene-layout grounding, and point-based localization are all included in the dataset. Due to its diversity, the model may function in a range of visually complex contexts, including natural sights, papers, application interfaces, driving situations, and robotics.</p>
+
+          <p class="body-copy">LocateAnything employs online stream packing to merge the training samples into more effective sequences since they vary widely in length and complexity. MagiAttention prevents unrelated packed samples from attending to each other while controlling the combination of causal, block-causal, and bidirectional attention.<sup><a href="#ref-5" class="mono">[5]</a></sup></p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ============ INFERENCE MODES ============ -->
-  <section id="inference-modes">
+  <section class="section-alt" id="inference-modes">
     <div class="wrap sidebar-layout">
       <div>
         <h2 class="section-title">Inference Modes</h2>
-        <div class="placeholder-block reveal">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
-          <div class="placeholder-title">Content coming soon</div>
-          <div class="placeholder-desc">This section will detail the three inference modes: Fast (pure parallel), Hybrid (default), and Slow (autoregressive).</div>
+        <div class="prose reveal">
+          <p class="body-copy">Three inference modes are offered by LocateAnything-3B:</p>
+        </div>
+        <div class="mode-list reveal">
+          <div class="mode-card">
+            <div class="mode-name">Fast Mode</div>
+            <p>Speedily generates bounding-box coordinates by using pure parallel decoding. It is designed for scenarios when processing speed is of utmost importance.</p>
+          </div>
+          <div class="mode-card">
+            <div class="mode-name">Hybrid Mode</div>
+            <p>The default option. It strikes a compromise between speed and localisation quality by combining sequential generation across distinct boxes with concurrent prediction inside each bounding box.</p>
+          </div>
+          <div class="mode-card">
+            <div class="mode-name">Slow Mode</div>
+            <p>Conventional autoregressive decoding is used. Although it is slower than the other modes, it is compatible with conventional vision-language model production since the output is created token by token.<sup><a href="#ref-5" class="mono">[5]</a></sup></p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ IMPLEMENTATION AND DEPLOYMENT ============ -->
-  <section class="section-alt" id="implementation-deployment">
+  <!-- ============ IMPLEMENTATION ============ -->
+  <section id="implementation">
     <div class="wrap sidebar-layout">
       <div>
-        <h2 class="section-title">Implementation and Deployment</h2>
-        <div class="placeholder-block reveal">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-          <div class="placeholder-title">Content coming soon</div>
-          <div class="placeholder-desc">This section will cover the Hugging Face model setup, image and prompt inputs, bounding-box generation, and the Gradio interface workflow — including the embedded live demo.</div>
+        <h2 class="section-title">Implementation</h2>
+        <div class="prose reveal">
+          <p class="body-copy">The project makes use of a Gradio interface for interactive testing and the nvidia/LocateAnything-3B model from Hugging Face.<sup><a href="#ref-9" class="mono">[9]</a></sup><sup><a href="#ref-10" class="mono">[10]</a></sup> Users choose an inference mode, pick a localization task, submit a picture, and respond to a natural language inquiry. After the model processes the picture and prompt, the produced coordinates appear on the output image as bounding boxes or points.</p>
+
+          <p class="body-copy">There are many task options available in the interface:</p>
+        </div>
+        <div class="task-list reveal">
+          <div class="task-item">
+            <span class="task-tag">Object Detection</span>
+            <p>Several item types may be found in a picture using object detection.</p>
+          </div>
+          <div class="task-item">
+            <span class="task-tag">Phrase Grounding</span>
+            <p>Finds a particular object that the user has described, such as "the person wearing a red shirt."</p>
+          </div>
+          <div class="task-item">
+            <span class="task-tag">OCR</span>
+            <p>Locates and recognizes text that is visible in an image.</p>
+          </div>
+          <div class="task-item">
+            <span class="task-tag">GUI Grounding</span>
+            <p>Locates interface components in screenshots, including buttons, icons, and menus.</p>
+          </div>
+          <div class="task-item">
+            <span class="task-tag">Pointing</span>
+            <p>When identifying a single place is sufficient and a full bounding box is not required, pointing returns a single coordinate.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEMONSTRATION ============ -->
+  <section class="section-alt" id="demonstration">
+    <div class="wrap sidebar-layout">
+      <div>
+        <h2 class="section-title">Demonstration</h2>
+        <div class="prose reveal">
+          <p class="body-copy">Sample photos will be used to showcase the Gradio program during our presentation. The ability of LocateAnything-3B to identify objects, text, interface elements, and other indicated locations will be demonstrated through various prompts, task choices, and inference modes.</p>
         </div>
       </div>
     </div>
@@ -398,6 +497,8 @@
           <li class="ref-item" id="ref-6"><span class="ref-num">[6]</span><span>YouTube. "Speeding up Vision-Language Models: LocateAnything Decoding Comparison." <a href="https://www.youtube.com/watch?v=9qZiPBlYw9s" target="_blank" rel="noopener">youtube.com/watch?v=9qZiPBlYw9s</a></span></li>
           <li class="ref-item" id="ref-7"><span class="ref-num">[7]</span><span>Xiao, L. "Awesome-Visual-Grounding." GitHub. <a href="https://github.com/linhuixiao/awesome-visual-grounding" target="_blank" rel="noopener">github.com/linhuixiao/awesome-visual-grounding</a></span></li>
           <li class="ref-item" id="ref-8"><span class="ref-num">[8]</span><span>NVIDIA Research. "LocateAnything Project Page." <a href="https://research.nvidia.com/labs/lpr/locate-anything/" target="_blank" rel="noopener">research.nvidia.com/labs/lpr/locate-anything</a></span></li>
+          <li class="ref-item" id="ref-9"><span class="ref-num">[9]</span><span>Gradio. "Build Machine Learning Demos and Applications." <a href="https://www.gradio.app" target="_blank" rel="noopener">gradio.app</a></span></li>
+          <li class="ref-item" id="ref-10"><span class="ref-num">[10]</span><span>Hugging Face. "Models — nvidia/LocateAnything-3B." <a href="https://huggingface.co/nvidia/LocateAnything-3B" target="_blank" rel="noopener">huggingface.co/nvidia/LocateAnything-3B</a></span></li>
         </ul>
       </div>
     </div>
