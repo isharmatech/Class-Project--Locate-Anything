@@ -809,8 +809,12 @@
         <div class="prose reveal">
           <p class="body-copy">The interactive demo below is the same Gradio app from <code class="mono">app.py</code> in the project repository, hosted on a Hugging Face Space backed by ZeroGPU (NVIDIA RTX Pro 6000 Blackwell). Upload an image, choose a grounding task, describe what to locate, pick an inference mode, and run LocateAnything-3B directly in the browser &mdash; no local setup required.</p>
           <p class="body-copy">Tasks mirror the experiments above: <strong>Object Detection</strong> takes a comma-separated category list (e.g. <code class="mono">person, car, bus</code>), <strong>Phrase Grounding</strong> takes a natural-language description (e.g. <em>the person wearing a red shirt</em>), <strong>OCR / Text Detection</strong> needs no description, <strong>GUI Grounding</strong> targets an interface element, and <strong>Pointing</strong> returns a single coordinate. The default <code class="mono">hybrid</code> inference mode balances speed and quality; <code class="mono">fast</code> uses pure parallel decoding and <code class="mono">slow</code> falls back to sequential autoregressive decoding.</p>
-          <p class="body-copy"><strong>Note:</strong> the demo runs on shared ZeroGPU infrastructure with a daily GPU-minute quota. The first request after the Space wakes up takes ~30&ndash;60 s while the 3B checkpoint loads onto the GPU; if the Space is paused or building, the page automatically falls back to a recorded walkthrough.</p>
         </div>
+
+        <p class="embed-note">
+          <svg class="embed-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <span><strong>Please only run the demo once.</strong> It runs on shared ZeroGPU infrastructure with a limited daily GPU-minute quota &mdash; if everyone runs it repeatedly, the quota gets exhausted and the demo stops working for everyone until it resets (~24 hours). The first request after the Space wakes up takes ~30&ndash;60 s while the 3B checkpoint loads onto the GPU. If the demo doesn't run, the daily ZeroGPU runs limit has most likely been reached; check the Space status at <a href="https://huggingface.co/spaces/cyberfrost7/locate-anything-demo" target="_blank" rel="noopener">huggingface.co/spaces/cyberfrost7/locate-anything-demo</a> and try again later.</span>
+        </p>
 
         <div class="gradio-embed reveal" id="gradio-embed">
           <iframe
@@ -844,11 +848,6 @@
             <figcaption class="backup-caption">Sample output &middot; object detection on a street scene (10 boxes across person, car, bicycle)</figcaption>
           </figure>
         </div>
-
-        <p class="embed-note">
-          <svg class="embed-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-          <span>If the demo above doesn't run, it's most likely because the Hugging Face Space has exceeded its daily ZeroGPU runs limit. The free GPU quota resets daily &mdash; try again later, or check the Space status at <a href="https://huggingface.co/spaces/cyberfrost7/locate-anything-demo" target="_blank" rel="noopener">huggingface.co/spaces/cyberfrost7/locate-anything-demo</a> and restart it if needed.</span>
-        </p>
       </div>
     </div>
   </section>
