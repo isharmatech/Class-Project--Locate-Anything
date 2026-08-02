@@ -1,21 +1,22 @@
 /* =========================================================
    Demo-day configuration — ONE-LINE EDIT TARGET
    ---------------------------------------------------------
-   Before presenting, open colab_demo.ipynb in Colab, run all
-   cells top to bottom, copy the https://xxxxx.gradio.live URL
-   the last cell prints, and paste it below into GRADIO_LIVE_URL.
-   Then commit + push so GitHub Pages rebuilds with the live link.
+   The live demo is now hosted on a Hugging Face Space (ZeroGPU),
+   so the URL below is PERSISTENT — it no longer changes every
+   time you re-run a notebook. The Space URL stays the same as
+   long as the Space exists.
 
    If GRADIO_LIVE_URL is empty (""), the Try It Yourself section
-   automatically shows the fallback message + backup video instead
-   of a blank iframe.
+   automatically shows the fallback message + backup image/video
+   instead of a blank iframe.
    ========================================================= */
 
 window.DEMO_CONFIG = {
-  // PASTE_GRADIO_LIVE_URL_HERE  <- replace with the live share link from Colab
-  GRADIO_LIVE_URL: "https://8c56ebcec9f2080125.gradio.live/",
+  // Persistent Hugging Face Space URL (ZeroGPU-backed Gradio app).
+  // This stays the same for the life of the Space — no demo-day scramble.
+  GRADIO_LIVE_URL: "https://cyberfrost7-locate-anything-demo.hf.space",
 
-  // Backup recording shown when the live link is offline.
+  // Backup recording shown when the live link is offline (Space paused/building).
   // Drop a screen-recording export at assets/demo-walkthrough.mp4
   // (or point this at a hosted URL). Leave "" to hide the video block.
   BACKUP_VIDEO_URL: "assets/demo-walkthrough.mp4",
@@ -25,5 +26,5 @@ window.DEMO_CONFIG = {
   BACKUP_IMAGE_URL: "assets/images/demo/demo_cell_011_out_00.png",
 
   // Seconds to wait for the Gradio iframe before falling back.
-  IFRAME_LOAD_TIMEOUT_MS: 20000,
+  IFRAME_LOAD_TIMEOUT_MS: 30000,
 };

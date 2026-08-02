@@ -807,9 +807,9 @@
       <div>
         <h2 class="section-title">Try It Yourself</h2>
         <div class="prose reveal">
-          <p class="body-copy">The interactive demo below is the same Gradio app from <code class="mono">app.py</code> in the project repository, served live from a free Google Colab T4 GPU session. Upload an image, choose a grounding task, describe what to locate, pick an inference mode, and run LocateAnything-3B directly in the browser &mdash; no local setup required.</p>
+          <p class="body-copy">The interactive demo below is the same Gradio app from <code class="mono">app.py</code> in the project repository, hosted on a Hugging Face Space backed by ZeroGPU (NVIDIA RTX Pro 6000 Blackwell). Upload an image, choose a grounding task, describe what to locate, pick an inference mode, and run LocateAnything-3B directly in the browser &mdash; no local setup required.</p>
           <p class="body-copy">Tasks mirror the experiments above: <strong>Object Detection</strong> takes a comma-separated category list (e.g. <code class="mono">person, car, bus</code>), <strong>Phrase Grounding</strong> takes a natural-language description (e.g. <em>the person wearing a red shirt</em>), <strong>OCR / Text Detection</strong> needs no description, <strong>GUI Grounding</strong> targets an interface element, and <strong>Pointing</strong> returns a single coordinate. The default <code class="mono">hybrid</code> inference mode balances speed and quality; <code class="mono">fast</code> uses pure parallel decoding and <code class="mono">slow</code> falls back to sequential autoregressive decoding.</p>
-          <p class="body-copy"><strong>Note:</strong> the live share link is only active while a Colab session is running. If the demo below is offline, the page automatically falls back to a recorded walkthrough &mdash; see the pre-presentation checklist at the bottom of this section to bring it back online.</p>
+          <p class="body-copy"><strong>Note:</strong> the demo runs on shared ZeroGPU infrastructure with a daily GPU-minute quota. The first request after the Space wakes up takes ~30&ndash;60 s while the 3B checkpoint loads onto the GPU; if the Space is paused or building, the page automatically falls back to a recorded walkthrough.</p>
         </div>
 
         <div class="gradio-embed reveal" id="gradio-embed">
@@ -824,7 +824,7 @@
             <div>
               <div class="spinner" aria-hidden="true"></div>
               <div class="loading-title">Loading the Gradio demo&hellip;</div>
-              <div class="loading-sub">The first request wakes the Colab session, which can take 30&ndash;60 seconds while the model loads onto the T4 GPU.</div>
+              <div class="loading-sub">The first request wakes the Space and loads the 3B checkpoint onto the GPU, which can take 30&ndash;60 seconds.</div>
             </div>
           </div>
         </div>
@@ -835,7 +835,7 @@
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
           </div>
           <h3 class="fallback-title">Live demo is currently offline</h3>
-          <p class="fallback-desc">The Colab share link is only active while a session is running. Watch the recorded walkthrough below, or open <code class="mono">colab_demo.ipynb</code> in Colab to spin up a fresh live session.</p>
+          <p class="fallback-desc">The Hugging Face Space is currently paused or building. Watch the recorded walkthrough below, or open the Space directly to wake it up.</p>
           <video id="backup-video" class="backup-video" controls preload="none" hidden>
             <track kind="descriptions" srclang="en" label="Recorded demo walkthrough">
           </video>
@@ -847,26 +847,24 @@
 
         <p class="embed-note">
           <svg class="embed-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-          <span>The live link changes every time the Colab notebook is re-run. To update it, paste the fresh <code class="mono">https://xxxxx.gradio.live</code> URL into <code class="mono">GRADIO_LIVE_URL</code> in <code class="mono">assets/config.js</code>, then commit and push so GitHub Pages rebuilds. See the checklist below.</span>
+          <span>The demo is hosted on a persistent Hugging Face Space, so the URL in <code class="mono">assets/config.js</code> does not change between runs &mdash; no demo-day scramble. If you ever need to repoint it (e.g. a new Space name), edit <code class="mono">GRADIO_LIVE_URL</code> and push.</span>
         </p>
 
         <details class="run-panel reveal">
           <summary>
             <span>Pre-presentation checklist &mdash; bring the live demo online</span>
-            <span class="run-panel-hint">~10 min before presenting &middot; click to expand</span>
+            <span class="run-panel-hint">~2 min before presenting &middot; click to expand</span>
             <svg class="run-panel-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
           </summary>
           <div class="run-panel-body">
             <ol class="checklist">
-              <li><strong>Open</strong> <code class="mono">colab_demo.ipynb</code> in Google Colab (File &gt; Upload notebook, or open from the repo).</li>
-              <li><strong>Set the runtime</strong> to a T4 GPU: <em>Runtime &gt; Change runtime type &gt; Hardware accelerator = T4 GPU</em>.</li>
-              <li><strong>Run all cells top to bottom.</strong> The model-load cell takes a few minutes the first time (it downloads the 3B checkpoint); subsequent runs are faster.</li>
-              <li><strong>Copy</strong> the <code class="mono">https://xxxxx.gradio.live</code> URL printed by the final launch cell.</li>
-              <li><strong>Paste</strong> it into <code class="mono">GRADIO_LIVE_URL</code> in <code class="mono">assets/config.js</code> (the one-line edit target).</li>
-              <li><strong>Commit and push</strong> so GitHub Pages rebuilds with the live link.</li>
-              <li><strong>Keep the Colab tab open and active</strong> for the entire presentation. Colab kills idle sessions after ~90 min and caps sessions at ~12 h.</li>
-              <li><strong>If the session drops</strong> during the demo, re-run the <em>Load model</em> and <em>Launch</em> cells to get a fresh link, paste it into <code class="mono">config.js</code>, and push again.</li>
+              <li><strong>Open</strong> the Space at <code class="mono">huggingface.co/spaces/cyberfrost7/locate-anything-demo</code>.</li>
+              <li>If the status is <em>Paused</em>, click <strong>Restart</strong> (top-right). Wait for the status to read <em>Running</em>.</li>
+              <li><strong>Refresh this page</strong> &mdash; the Try It Yourself iframe will load the live Gradio app.</li>
+              <li><strong>Send one warm-up request</strong> before presenting so the 3B checkpoint is already on the GPU (the first request takes ~30&ndash;60 s; later requests are fast).</li>
+              <li><strong>That's it.</strong> The Space URL is persistent, so no link-swapping or pushing is needed on demo day.</li>
             </ol>
+            <p class="body-copy" style="margin-top: var(--space-4); font-size: var(--text-sm); color: var(--color-text-muted);">ZeroGPU gives Pro accounts 40 GPU-minutes/day (highest queue priority). A class presentation typically uses a few minutes, so this is plenty. If you exhaust the daily quota, extra usage is billed at $1 per 10 minutes against pre-paid credits.</p>
           </div>
         </details>
       </div>
