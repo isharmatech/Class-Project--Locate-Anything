@@ -1275,6 +1275,23 @@ blockquote.pull-quote cite {
 }
 .embed-note .embed-note-icon { color: var(--color-warning); flex-shrink: 0; }
 
+/* Direct-link fallback shown below the embedded demo */
+.demo-direct-link {
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.demo-direct-link svg { color: var(--color-accent, #5eead4); flex-shrink: 0; }
+.demo-direct-link a { font-weight: 600; }
+
 /* Fallback panel shown when the live link is offline / not yet set */
 .embed-fallback {
   margin-block: var(--space-8);

@@ -277,7 +277,7 @@ def build_demo() -> gr.Blocks:
             show_label=False,
             columns=4,
             rows=1,
-            height=200,
+            height=280,
             allow_preview=False,
             interactive=False,
         )
