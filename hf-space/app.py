@@ -242,17 +242,54 @@ def run_inference(
     return annotated, prompt, answer
 
 
+EXAMPLES = [
+    ("assets/street_scene.jpg", "Street scene", "Object Detection", "person, car, bicycle", "hybrid"),
+    ("assets/desk_scene.jpg", "Office desk", "Object Detection", "computer, mouse, cup, keyboard, plant", "hybrid"),
+    ("assets/grocery_shelf.jpg", "Grocery shelf", "Phrase Grounding", "the blue and yellow pasta box labeled Whole Wheat Elbows", "hybrid"),
+    ("assets/clothing_store.jpg", "Clothing store", "Object Detection", "dress, shirt, jacket, clothing rack, handbag", "hybrid"),
+]
+
+
+def select_example(evt: gr.SelectData):
+    """When a gallery thumbnail is clicked, load that image + its task/description/mode."""
+    idx = evt.index if isinstance(evt.index, int) else evt.index[0]
+    image_path, _caption, task, description, mode = EXAMPLES[idx]
+    return image_path, task, description, mode
+
+
 def build_demo() -> gr.Blocks:
-    """Build the Gradio Blocks UI — identical to the local/Colab app.py."""
+    """Build the Gradio Blocks UI for the Hugging Face Space."""
     with gr.Blocks(title="Locate Anything Demo") as demo:
         gr.Markdown(
             "# Locate Anything Demo\n"
-            "Upload an image and describe what you want NVIDIA LocateAnything-3B to locate."
+            "Pick an example image, tell NVIDIA LocateAnything-3B what to locate, and run it in the browser."
         )
+        gr.Markdown(
+            "> **Please only run the demo once** &mdash; it uses a shared GPU with a limited daily quota.\n"
+            "> You **can change the Task and the description** to control what the model looks for in the selected example image."
+        )
+
+        # Step 1 — gallery of example images, FULL WIDTH so it's the first thing visitors see.
+        gr.Markdown("**Step 1 — pick an example image**")
+        gallery = gr.Gallery(
+            value=[(path, caption) for path, caption, *_ in EXAMPLES],
+            label="Example images (click one)",
+            show_label=False,
+            columns=4,
+            rows=1,
+            height=200,
+            allow_preview=False,
+            interactive=False,
+        )
+
+        # Step 2 — full-width heading, so the Selected image and Detected result
+        # boxes below it line up on the same horizontal level.
+        gr.Markdown("**Step 2 — adjust the Task and description, then press Locate objects**")
 
         with gr.Row():
             with gr.Column():
-                image_input = gr.Image(type="pil", label="Input image")
+                # The selected image appears here (display-only, no upload).
+                image_input = gr.Image(type="pil", label="Selected image", interactive=False)
                 task_input = gr.Dropdown(
                     choices=[
                         "Object Detection",
@@ -300,27 +337,16 @@ def build_demo() -> gr.Blocks:
 
                 run_button = gr.Button("Locate objects", variant="primary")
 
-                # Pre-loaded example images so visitors can try the demo without
-                # uploading their own. Each example auto-fills the image, task, and
-                # description to reproduce the experiments from the project report.
-                gr.Examples(
-                    examples=[
-                        ["assets/street_scene.jpg", "Object Detection", "person, car, bicycle", "hybrid"],
-                        ["assets/desk_scene.jpg", "Object Detection", "computer, mouse, cup, keyboard, plant", "hybrid"],
-                        ["assets/grocery_shelf.jpg", "Phrase Grounding", "the blue and yellow pasta box labeled Whole Wheat Elbows", "hybrid"],
-                        ["assets/clothing_store.jpg", "Object Detection", "dress, shirt, jacket, clothing rack, handbag", "hybrid"],
-                    ],
-                    inputs=[image_input, task_input, description_input, mode_input],
-                    label="Examples — click one to load it, then press Locate objects",
-                    # Don't pre-compute/run at startup — that would burn ZeroGPU quota.
-                    # Clicking an example only fills the inputs; the user then hits the button.
-                    cache_examples=False,
-                )
-
             with gr.Column():
                 output_image = gr.Image(type="pil", label="Detected result")
                 generated_prompt = gr.Textbox(label="Prompt sent to model", lines=2)
                 raw_output = gr.Textbox(label="Raw model output", lines=8)
+
+        # Wire the gallery click to populate the image + task + description + mode.
+        gallery.select(
+            fn=select_example,
+            outputs=[image_input, task_input, description_input, mode_input],
+        )
 
         run_button.click(
             fn=run_inference,
