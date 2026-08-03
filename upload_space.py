@@ -68,6 +68,19 @@ def main() -> int:
         token=token,
     )
 
+    # Set HF_TOKEN as a Space Secret so ZeroGPU attributes GPU-minute usage to
+    # this PRO account instead of falling back to anonymous IP-based quotas.
+    # Secrets are stored server-side only (never written to the repo files) and
+    # are redacted in the HF UI. Setting/changing a secret triggers a Space
+    # restart, which is expected.
+    print("Setting HF_TOKEN Space secret (attributes ZeroGPU quota to your PRO account) ...")
+    api.add_space_secret(
+        repo_id=SPACE_REPO_ID,
+        key="HF_TOKEN",
+        value=token,
+        token=token,
+    )
+
     print("\nDone. Watch the build log at:")
     print(f"  https://huggingface.co/spaces/{SPACE_REPO_ID}")
     print("Once the status reads 'Running', the demo is live at:")
