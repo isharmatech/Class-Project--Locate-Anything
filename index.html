@@ -808,12 +808,20 @@
         <h2 class="section-title">Try It Yourself</h2>
         <div class="prose reveal">
           <p class="body-copy">The interactive demo below is the same Gradio app from <code class="mono">app.py</code> in the project repository, hosted on a Hugging Face Space backed by ZeroGPU (NVIDIA RTX Pro 6000 Blackwell). Choose an image, choose a grounding task, describe what to locate, pick an inference mode, and run LocateAnything-3B directly in the browser &mdash; no local setup required.</p>
-          <p class="body-copy">Tasks mirror the experiments above: <strong>Object Detection</strong> takes a comma-separated category list (e.g. <code class="mono">person, car, bus</code>), <strong>Phrase Grounding</strong> takes a natural-language description (e.g. <em>the person wearing a red shirt</em>), <strong>OCR / Text Detection</strong> needs no description, <strong>GUI Grounding</strong> targets an interface element, and <strong>Pointing</strong> returns a single coordinate. The default <code class="mono">hybrid</code> inference mode balances speed and quality; <code class="mono">fast</code> uses pure parallel decoding and <code class="mono">slow</code> falls back to sequential autoregressive decoding.</p>
+          <p class="body-copy">Tasks mirror the experiments above. Pick one in the demo's <strong>Task</strong> dropdown:</p>
+          <ul class="task-list">
+            <li><strong>Object Detection</strong> &mdash; comma-separated category list (e.g. <code class="mono">person, car, bus</code>).</li>
+            <li><strong>Phrase Grounding</strong> &mdash; natural-language description (e.g. <em>the person wearing a red shirt</em>).</li>
+            <li><strong>OCR / Text Detection</strong> &mdash; needs no description.</li>
+            <li><strong>GUI Grounding</strong> &mdash; targets an interface element.</li>
+            <li><strong>Pointing</strong> &mdash; returns a single coordinate.</li>
+          </ul>
+          <p class="body-copy"><strong>Inference modes:</strong> <code class="mono">hybrid</code> (default) balances speed and quality; <code class="mono">fast</code> uses pure parallel decoding; <code class="mono">slow</code> falls back to sequential autoregressive decoding.</p>
         </div>
 
         <p class="embed-note">
           <svg class="embed-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-          <span><strong>Please only run the demo once.</strong> This demo runs on shared ZeroGPU infrastructure with a limited daily GPU-minute quota &mdash; the quota can get exhausted and the demo will stop working for everyone until it resets. The first request after the Space wakes up takes ~30&ndash;60 s while the 3B checkpoint loads onto the GPU. If the demo doesn't run, the daily ZeroGPU runs limit has most likely been reached; please try again later.</span>
+          <span><strong>Please only run the demo once.</strong> This demo runs on shared ZeroGPU infrastructure with a limited daily GPU-minute quota &mdash; the quota can get exhausted and the demo will stop working for everyone until it resets. The first request after the Space wakes up takes ~30&ndash;60 s while the 3B checkpoint loads onto the GPU. If the demo doesn't run, try refreshing the page; if it is still not working the daily ZeroGPU runs limit has most likely been reached, please try again later.</span>
         </p>
 
         <p class="demo-direct-link">
