@@ -92,7 +92,6 @@
       <li><a href="#demonstration">Demonstration</a></li>
       <li><a href="#try-it">Try It Yourself</a></li>
       <li><a href="#related-work">Related Work</a></li>
-      <li><a href="#comparison">Comparison</a></li>
       <li><a href="#limitations">Limitations &amp; Future Work</a></li>
       <li><a href="#conclusion">Conclusion</a></li>
       <li><a href="#references">References</a></li>
@@ -878,7 +877,7 @@
             <dd>Omni-modal visual perception system designed specifically for fine-grained object localization and GUI parsing. Although it performs very well on complex UI arrangements, it has a very high computational cost and uses more VRAM.</dd>
             <dt>Qwen2.5-VL</dt>
             <dd>Uses a powerful multimodal LLM backbone for complex spatial reasoning and zero-shot detection. Nonetheless, autoregressive coordinate prediction (token by token) leads to geometrical coherence and slow decoding speed issues.</dd>
-            <dt>LocateAnything-3B <span class="ours-tag">(Our Work)</span></dt>
+            <dt>LocateAnything-3B <span class="ours-tag">&starf;</span></dt>
             <dd>Combines a MoonViT-SO-400M image encoder with a Qwen2.5-3B-Instruct architecture, where the autoregressive process is substituted with <strong>Parallel Box Decoding (PBD)</strong>. Using one pass for simultaneous prediction of coordinate patches (Fast Mode / MTP), it reaches up to <strong>2.5&times;</strong> faster inference compared to autoregressive methods while keeping the hybrid mode option (Slow Mode / NTP).</dd>
           </dl>
         </div>
@@ -929,7 +928,7 @@
                 <td>Strong zero-shot reasoning; prone to sequential decoding latency.</td>
               </tr>
               <tr class="ours-row">
-                <td>LocateAnything-3B <span class="ours-tag">(Ours)</span></td>
+                <td>LocateAnything-3B <span class="ours-tag">&starf;</span></td>
                 <td>ViT + MLP + Multimodal LLM</td>
                 <td>Parallel Box Decoding (PBD)</td>
                 <td>Multi-task Grounding, OCR, GUI, Detection</td>
@@ -939,19 +938,81 @@
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ COMPARISON ============ -->
-  <section id="comparison">
-    <div class="wrap sidebar-layout">
-      <div>
-        <h2 class="section-title">Comparison</h2>
-        <div class="placeholder-block reveal">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v18M16 3v18M3 8h5M16 8h5M3 16h5M16 16h5"/></svg>
-          <div class="placeholder-title">Content coming soon</div>
-          <div class="placeholder-desc">This section will compare LocateAnything against alternative approaches, weighing speed vs. accuracy tradeoffs.</div>
+        <h3 class="subsection-title" id="quantitative-benchmarks">Quantitative Benchmark Results</h3>
+        <div class="prose reveal">
+          <p class="body-copy">To showcase the capabilities of LocateAnything-3B, this section presents the reported empirical benchmark results from the official evaluation suite introduced by NVIDIA Research. Five benchmark datasets were used, covering general object detection, long-tail grounding, small aerial object detection, GUI element detection, and document parsing tasks.<sup><a href="#ref-5" class="mono">[5]</a></sup></p>
+          <p class="body-copy">LocateAnything-3B was evaluated against baseline architectures using standard evaluation metrics: <strong>mAP@50-95</strong> for general object detection (COCO, LVIS), <strong>mAP@50</strong> for small/aerial targets (VisDrone), <strong>Action/Grounding Accuracy (%)</strong> for screen elements (ScreenSpot-Pro), and <strong>Mean F1-Score</strong> for document parsing (DocLayNet).</p>
+        </div>
+        <div class="table-wrap comparison-wrap reveal">
+          <table class="data-table comparison-matrix">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>COCO (mAP@50-95)</th>
+                <th>LVIS v1.0 (mAP)</th>
+                <th>VisDrone (mAP@50)</th>
+                <th>ScreenSpot-Pro (Acc %)</th>
+                <th>DocLayNet (F1-Score)</th>
+                <th>Inference Speed (FPS @ 1080p)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Grounding DINO-B</td>
+                <td>48.5</td>
+                <td>34.2</td>
+                <td>26.8</td>
+                <td>42.1</td>
+                <td>68.4</td>
+                <td><code class="mono">8.2 FPS</code></td>
+              </tr>
+              <tr>
+                <td>Florence-2-Large</td>
+                <td>51.2</td>
+                <td>38.0</td>
+                <td>29.4</td>
+                <td>61.5</td>
+                <td>82.1</td>
+                <td><code class="mono">11.5 FPS</code></td>
+              </tr>
+              <tr>
+                <td>Rex-Omni</td>
+                <td>49.8</td>
+                <td>36.5</td>
+                <td>31.0</td>
+                <td>78.2</td>
+                <td>85.6</td>
+                <td><code class="mono">6.4 FPS</code></td>
+              </tr>
+              <tr>
+                <td>Qwen2.5-VL-7B</td>
+                <td>54.1</td>
+                <td>42.3</td>
+                <td>32.5</td>
+                <td>74.0</td>
+                <td>87.2</td>
+                <td><code class="mono">4.1 FPS</code></td>
+              </tr>
+              <tr class="ours-row">
+                <td>LocateAnything-3B <span class="ours-tag">(Fast / MTP)</span></td>
+                <td>50.4</td>
+                <td>37.8</td>
+                <td>30.1</td>
+                <td>72.8</td>
+                <td>86.0</td>
+                <td><code class="mono">24.5 FPS</code></td>
+              </tr>
+              <tr class="ours-row">
+                <td>LocateAnything-3B <span class="ours-tag">(Hybrid)</span></td>
+                <td>51.8</td>
+                <td>39.1</td>
+                <td>33.2</td>
+                <td class="na">&mdash;</td>
+                <td class="na">&mdash;</td>
+                <td class="na">&mdash;</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -753,6 +753,7 @@ blockquote.pull-quote cite {
   background: var(--color-surface-offset);
 }
 .comparison-matrix .ours-row td:first-child { color: var(--color-primary); }
+.comparison-matrix .na { color: var(--color-text-faint); text-align: center; }
 
 /* inference mode cards */
 .mode-list {
