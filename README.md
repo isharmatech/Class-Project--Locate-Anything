@@ -1,6 +1,6 @@
 # Locate Anything — Project Website & Live Demo
 
-This repository hosts the project website and the live interactive demo for our DS677 study of **NVIDIA LocateAnything-3B**. The work here is the **static website** (served via GitHub Pages) and the **Hugging Face Space** that embeds the model and powers the live demo — not the model itself.
+This repository hosts the project website and the live interactive demo for our DS677 study of **NVIDIA LocateAnything-3B**. The work here is the **static website** (served via GitHub Pages) and the **Hugging Face Space** that embeds the model and powers the live demo.
 
 **Website:** https://isharmatech.github.io/Class-Project--Locate-Anything/
 **Live demo:** https://cyberfrost7-locate-anything-demo.hf.space
