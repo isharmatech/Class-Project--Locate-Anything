@@ -867,10 +867,77 @@
     <div class="wrap sidebar-layout">
       <div>
         <h2 class="section-title">Related Work</h2>
-        <div class="placeholder-block reveal">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><path d="M9 8.5l1.5 6M15 8.5l-1.5 6"/></svg>
-          <div class="placeholder-title">Content coming soon</div>
-          <div class="placeholder-desc">This section will compare LocateAnything with prior grounding models, including Grounding DINO, Florence-2, Rex-Omni, and Qwen2.5-VL.</div>
+        <div class="prose reveal">
+          <p class="body-copy">Vision-language models grounded in open vocabulary have advanced fast, from dual-encoder cross-attention models to unified sequence-to-sequence models. We provide a comparison between <strong>LocateAnything-3B</strong> and relevant architectures below.</p>
+          <dl class="related-models">
+            <dt>Grounding DINO</dt>
+            <dd>Dual image-text encoders combined with cross-attention feature maps to align text tokens and image regions. Despite being very good at phrase grounding, coordinate generation requires computing cross-attention matrices, resulting in inference latency issues, especially in dense images.</dd>
+            <dt>Florence-2</dt>
+            <dd>Unified sequence-to-sequence vision model covering grounding, OCR, and segmentation through text prompts. Nonetheless, Florence-2 needs sequential token generation for spatial coordinates, creating latency issues when predicting multiple objects.</dd>
+            <dt>Rex-Omni</dt>
+            <dd>Omni-modal visual perception system designed specifically for fine-grained object localization and GUI parsing. Although it performs very well on complex UI arrangements, it has a very high computational cost and uses more VRAM.</dd>
+            <dt>Qwen2.5-VL</dt>
+            <dd>Uses a powerful multimodal LLM backbone for complex spatial reasoning and zero-shot detection. Nonetheless, autoregressive coordinate prediction (token by token) leads to geometrical coherence and slow decoding speed issues.</dd>
+            <dt>LocateAnything-3B <span class="ours-tag">(Our Work)</span></dt>
+            <dd>Combines a MoonViT-SO-400M image encoder with a Qwen2.5-3B-Instruct architecture, where the autoregressive process is substituted with <strong>Parallel Box Decoding (PBD)</strong>. Using one pass for simultaneous prediction of coordinate patches (Fast Mode / MTP), it reaches up to <strong>2.5&times;</strong> faster inference compared to autoregressive methods while keeping the hybrid mode option (Slow Mode / NTP).</dd>
+          </dl>
+        </div>
+        <h3 class="demo-subsection" id="related-comparison">Summary Comparison Matrix</h3>
+        <div class="table-wrap comparison-wrap reveal">
+          <table class="data-table comparison-matrix">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Architecture Paradigm</th>
+                <th>Coordinate Generation</th>
+                <th>Primary Tasks</th>
+                <th>VRAM Footprint</th>
+                <th>Speed vs. Accuracy Trade-off</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Grounding DINO</td>
+                <td>Dual-Encoder + Cross-Attention</td>
+                <td>Cross-Attention Feature Map</td>
+                <td>Phrase Grounding, Object Detection</td>
+                <td><code class="mono">~6&ndash;8 GB</code></td>
+                <td>High grounding precision; slow in multi-object scenes.</td>
+              </tr>
+              <tr>
+                <td>Florence-2</td>
+                <td>Unified Seq2Seq Transformer</td>
+                <td>Autoregressive Token Generation</td>
+                <td>Grounding, OCR, Segmentation</td>
+                <td><code class="mono">~4&ndash;8 GB</code></td>
+                <td>High task versatility; latency bottlenecks in box prediction.</td>
+              </tr>
+              <tr>
+                <td>Rex-Omni</td>
+                <td>Omni-Modal Vision Transformer</td>
+                <td>Task-Driven Regression Heads</td>
+                <td>GUI Tracking, Document Parsing</td>
+                <td><code class="mono">~12&ndash;16 GB</code></td>
+                <td>Excellent UI precision; high memory &amp; computational overhead.</td>
+              </tr>
+              <tr>
+                <td>Qwen2.5-VL</td>
+                <td>Multimodal LLM (Autoregressive)</td>
+                <td>Token-by-Token Autoregressive</td>
+                <td>Spatial Reasoning, VQA, Detection</td>
+                <td><code class="mono">~14&ndash;24 GB</code></td>
+                <td>Strong zero-shot reasoning; prone to sequential decoding latency.</td>
+              </tr>
+              <tr class="ours-row">
+                <td>LocateAnything-3B <span class="ours-tag">(Ours)</span></td>
+                <td>ViT + MLP + Multimodal LLM</td>
+                <td>Parallel Box Decoding (PBD)</td>
+                <td>Multi-task Grounding, OCR, GUI, Detection</td>
+                <td><code class="mono">~10 GB</code></td>
+                <td>Optimal speedup (2.5&times;) with near-SOTA localization accuracy.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

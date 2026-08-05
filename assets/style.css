@@ -694,6 +694,66 @@ blockquote.pull-quote cite {
 .data-table td:nth-child(2) { color: var(--color-text); }
 .data-table td:nth-child(3) { color: var(--color-text-muted); }
 
+/* Related Work — model definition list */
+.related-models {
+  margin: var(--space-5) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.related-models dt {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-base);
+  color: var(--color-primary);
+  margin-bottom: var(--space-1);
+}
+.related-models dd {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--color-border);
+}
+.related-models dd strong { color: var(--color-text); }
+
+/* "Our work" accent badge used in the list and the matrix */
+.ours-tag {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-bg);
+  background: var(--color-primary);
+  padding: 0.1em 0.5em;
+  border-radius: var(--radius-sm);
+  margin-left: var(--space-2);
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+}
+
+/* Comparison matrix table — overrides the test-number column styling */
+.comparison-matrix td:first-child,
+.comparison-matrix td:nth-child(2),
+.comparison-matrix td:nth-child(3),
+.comparison-matrix td:nth-child(4),
+.comparison-matrix td:nth-child(5),
+.comparison-matrix td:nth-child(6) {
+  width: auto;
+  text-align: left;
+  color: var(--color-text);
+}
+.comparison-matrix td:first-child {
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+.comparison-matrix td:nth-child(6) { color: var(--color-text-muted); }
+.comparison-matrix .ours-row td {
+  background: var(--color-surface-offset);
+}
+.comparison-matrix .ours-row td:first-child { color: var(--color-primary); }
+
 /* inference mode cards */
 .mode-list {
   display: flex;
