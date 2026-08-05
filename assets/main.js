@@ -70,45 +70,21 @@
 
   // Lazy-load the embedded Gradio iframe only when the "Try It Yourself"
   // section approaches the viewport, then reveal it once loaded. The live
-  // share URL comes from assets/config.js (window.DEMO_CONFIG.GRADIO_LIVE_URL),
-  // which is the one-line edit target on demo day. If that URL is empty or the
-  // iframe fails to load, fall back to the offline message + backup video.
+  // share URL comes from assets/config.js (window.DEMO_CONFIG.GRADIO_LIVE_URL).
+  // If that URL is empty or the iframe fails to load (the Space is asleep),
+  // fall back to the "open the Space" message.
   const gradioEmbed = document.getElementById('gradio-embed');
   const gradioFrame = document.getElementById('gradio-frame');
   const embedLoading = document.getElementById('embed-loading');
   const embedFallback = document.getElementById('embed-fallback');
-  const backupVideo = document.getElementById('backup-video');
-  const backupStill = document.getElementById('backup-still');
-  const backupImage = document.getElementById('backup-image');
   const cfg = window.DEMO_CONFIG || {};
   const liveUrl = (cfg.GRADIO_LIVE_URL || '').trim();
-  const backupVideoUrl = (cfg.BACKUP_VIDEO_URL || '').trim();
-  const backupImageUrl = (cfg.BACKUP_IMAGE_URL || '').trim();
   const timeoutMs = cfg.IFRAME_LOAD_TIMEOUT_MS || 20000;
-
-  function showBackupImage() {
-    if (!backupStill || !backupImage || !backupImageUrl || !backupStill.hidden) return;
-    backupImage.src = backupImageUrl;
-    backupStill.hidden = false;
-  }
 
   function showFallback() {
     if (gradioEmbed) gradioEmbed.hidden = true;
     if (embedLoading) embedLoading.hidden = true;
     if (embedFallback) embedFallback.hidden = false;
-    if (backupVideo && backupVideoUrl) {
-      // preload="metadata" so a missing recording errors immediately and we
-      // degrade to the still image instead of leaving a dead player.
-      backupVideo.preload = 'metadata';
-      backupVideo.hidden = false;
-      backupVideo.src = backupVideoUrl;
-      backupVideo.addEventListener('error', () => {
-        backupVideo.hidden = true;
-        showBackupImage();
-      }, { once: true });
-    } else {
-      showBackupImage();
-    }
   }
 
   if (gradioEmbed && gradioFrame) {

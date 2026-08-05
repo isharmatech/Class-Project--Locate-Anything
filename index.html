@@ -849,17 +849,14 @@
         <!-- Fallback shown when GRADIO_LIVE_URL is empty or the iframe fails to load -->
         <div class="embed-fallback" id="embed-fallback" hidden>
           <div class="fallback-icon" aria-hidden="true">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           </div>
-          <h3 class="fallback-title">Live demo is currently offline</h3>
-          <p class="fallback-desc">The Hugging Face Space is currently paused or building. Watch the recorded walkthrough below, or open the Space directly to wake it up.</p>
-          <video id="backup-video" class="backup-video" controls preload="none" hidden>
-            <track kind="descriptions" srclang="en" label="Recorded demo walkthrough">
-          </video>
-          <figure class="backup-still" id="backup-still" hidden>
-            <img id="backup-image" class="backup-image" alt="Recorded demo result: a street scene annotated with red bounding boxes around detected people, cars, and a bicycle." loading="lazy">
-            <figcaption class="backup-caption">Sample output &middot; object detection on a street scene (10 boxes across person, car, bicycle)</figcaption>
-          </figure>
+          <h3 class="fallback-title">The demo Space is asleep</h3>
+          <p class="fallback-desc">The Hugging Face Space goes to sleep when it hasn't been used for a while. To wake it up, click the button below to open the Space &mdash; once it finishes loading, come back here and <strong>refresh this page</strong> to activate the embedded demo.</p>
+          <a class="fallback-cta" href="https://cyberfrost7-locate-anything-demo.hf.space" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open the Locate Anything Space
+          </a>
         </div>
       </div>
     </div>
