@@ -1349,6 +1349,19 @@ blockquote.pull-quote cite {
 .task-list strong { color: var(--color-primary); }
 .task-list code.mono { font-size: 0.9em; }
 
+/* Bulleted point list with bold accent lead-in labels (limitations, future work, ethics) */
+.point-list {
+  margin: var(--space-3) 0 var(--space-4);
+  padding-left: var(--space-5);
+  list-style: disc;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--color-text);
+}
+.point-list li { line-height: 1.55; }
+.point-list strong { color: var(--color-primary); }
+
 /* Direct-link fallback shown below the embedded demo */
 .demo-direct-link {
   margin-top: var(--space-3);

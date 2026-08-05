@@ -962,10 +962,24 @@
     <div class="wrap sidebar-layout">
       <div>
         <h2 class="section-title">Limitations &amp; Future Work</h2>
-        <div class="placeholder-block reveal">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-          <div class="placeholder-title">Content coming soon</div>
-          <div class="placeholder-desc">This section will discuss the current limitations of LocateAnything and possible directions for future work.</div>
+        <div class="prose reveal">
+          <p class="body-copy">Although our qualitative assessment confirmed the advantages of speed and localization by LocateAnything-3B, certain limitations were observed in the course of implementing the solution:</p>
+          <ul class="point-list">
+            <li><strong>Dataset Coverage and Quantitative Assessment:</strong> Our assessment is currently limited to qualitative images instead of using common benchmark datasets (mAP scores on COCO and LVIS). In addition, there may be minor coordinate offsets with non-zero sampling temperatures due to generation variation.</li>
+            <li><strong>Limitation of Comparative Assessment:</strong> Owing to time limitations in project implementation, we could not evaluate our photographic dataset through competing open-vocabulary models such as Grounding DINO, SAM + CLIP, and YOLO-World.</li>
+            <li><strong>Ambiguities in Visual Perception &amp; Coarse Grouping:</strong> A high level of repetition in package design, small accessories, and occlusions often lead to false positives, or even to grouping several closely placed items together in a single coarse bounding box.</li>
+            <li><strong>Hardware Limitations &amp; Time Frame:</strong> Performing inference with the 10 GB GPU VRAM limitation would not allow batching full-resolution multi-images. Moreover, the model is unable to track objects across time frames since it uses only individual static frames.</li>
+          </ul>
+        </div>
+        <h3 class="subsection-title">Future Work Agenda</h3>
+        <div class="prose reveal">
+          <p class="body-copy">To address these limitations, future project iterations will prioritize:</p>
+          <ul class="point-list">
+            <li><strong>Cross-Model Empirical Benchmarking:</strong> Conducting rigorous head-to-head empirical performance testing against all competing models (Grounding DINO, YOLO-World, Florence-2) using our bespoke image testing suite, providing quantitative comparison of mAP, latency and VRAM overheads.</li>
+            <li><strong>Automated Dynamic Tiling (SAHI):</strong> Incorporating Slicing Aided Hyper Inference (SAHI) to dynamically tile high-resolution images into multi-ROI tiles to fix small-object misses while keeping VRAM usage under control.</li>
+            <li><strong>Video Tracking Integration:</strong> Pairing LocateAnything-3B with video trackers (such as ByteTrack or DeepSORT) for real-time video-stream multi-object tracking capability.</li>
+            <li><strong>LLM-based Prompt Pre-processing:</strong> Creating an automated prompt pre-processing system that expands simple user inputs into complex spatially detailed prompts before running inference.</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -976,10 +990,18 @@
     <div class="wrap sidebar-layout">
       <div>
         <h2 class="section-title">Conclusion</h2>
-        <div class="placeholder-block reveal">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6 9 17l-5-5"/></svg>
-          <div class="placeholder-title">Content coming soon</div>
-          <div class="placeholder-desc">This section will summarize the project's findings and takeaways.</div>
+        <div class="prose reveal">
+          <p class="body-copy">In this paper, we investigated LocateAnything-3B, an open-vocabulary visual-linguistic grounding model created to mitigate the latency issues caused by the autoregressive coordinate generation approach used in traditional models. The combination of the MoonViT vision encoder and the Qwen2.5-3B language backbone together with the proposed Parallel Box Decoding (PBD) approach enables the model to generate coordinate blocks in one inference step &mdash; providing a 2.5&times; speedup compared to autoregressive approaches such as Qwen2.5-VL and Grounding DINO without sacrificing geometric accuracy.</p>
+          <p class="body-copy">Our quantitative and qualitative experiments across various task types show promising results in terms of the speed&ndash;accuracy trade-off in general visual grounding, dense perception, GUI element detection, and document parsing. Still, there are certain limitations in terms of visual ambiguity in repetitive and cluttered scenes due to coarse box aggregation and small-object skipping.</p>
+          <p class="body-copy">To move toward real-time application of LocateAnything-3B, future work would concentrate on incorporating automated dynamic tiling (SAHI) to enable VRAM-bounded small-object detection, in addition to combining the system with temporal tracking systems (ByteTrack). LocateAnything-3B thus moves the state of the art forward in efficient and generalist visual perception systems.</p>
+        </div>
+        <h3 class="subsection-title">Broader Impact &amp; Ethical Considerations</h3>
+        <div class="prose reveal">
+          <p class="body-copy">LocateAnything-3B and other open-vocabulary visual grounding models have practical uses in physical AI systems, GUI automation, and accessibility aids. Yet there are certain ethical issues to be taken into account in deployment of the technology:</p>
+          <ul class="point-list">
+            <li><strong>Privacy in Public Domains:</strong> Since evaluation of such a model will require testing on images captured in the street or at offices, privacy issues related to personal data such as faces and license plates need to be properly considered by using automated anonymization pipelines.</li>
+            <li><strong>Safety of Autonomous Systems:</strong> Since false positives and coarse bounding-box aggregation may be encountered in complex scenes, the model is not suitable for use as a standalone autonomous detector.</li>
+          </ul>
         </div>
       </div>
     </div>
