@@ -24,6 +24,34 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 DTYPE = torch.float16
 
 
+def estimate_gpu_duration(
+    worker: "LocateAnythingWorker",
+    image: Image.Image,
+    prompt: str,
+    generation_mode: str = "hybrid",
+    max_new_tokens: int = 2048,
+    temperature: float = 0.7,
+) -> int:
+    """Right-size the ZeroGPU quota reservation for one `predict` call.
+
+    ZeroGPU deducts quota equal to this *declared* duration (times a
+    hardware multiplier — 1.5x on the RTX Pro 6000 Blackwell), not the
+    actual runtime. A flat 60s default both wastes quota on short/simple
+    requests and risks killing long "slow" (autoregressive) generations
+    mid-run, which still burns the full reservation and forces a retry.
+    The first call also needs extra time to move the model onto the GPU.
+    """
+    base_seconds = {"hybrid": 20, "fast": 15, "slow": 30}
+    per_1k_tokens_seconds = {"hybrid": 8, "fast": 6, "slow": 25}
+    mode = generation_mode if generation_mode in base_seconds else "hybrid"
+
+    duration = base_seconds[mode] + per_1k_tokens_seconds[mode] * (max(1, int(max_new_tokens)) / 1000)
+    if not worker._on_gpu:
+        duration += 20
+
+    return int(min(160, duration))
+
+
 class LocateAnythingWorker:
     """Loads LocateAnything once and serves repeated Gradio requests."""
 
@@ -41,7 +69,7 @@ class LocateAnythingWorker:
         ).eval()
         self._on_gpu = False
 
-    @spaces.GPU
+    @spaces.GPU(duration=estimate_gpu_duration)
     @torch.inference_mode()
     def predict(
         self,
@@ -322,7 +350,7 @@ def build_demo() -> gr.Blocks:
                     )
                     max_tokens_input = gr.Slider(
                         minimum=512,
-                        maximum=8192,
+                        maximum=4096,
                         value=2048,
                         step=512,
                         label="Maximum new tokens",
