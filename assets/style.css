@@ -328,6 +328,19 @@ h1.hero-title .accent { color: var(--color-primary); }
   border-top: 1px solid var(--color-divider);
 }
 .hero-meta strong { color: var(--color-text-muted); font-weight: 500; }
+.hero-meta .hero-authors { flex-basis: 100%; }
+.hero-meta .hero-authors strong {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  font-weight: 600;
+}
+.hero-meta .author-names {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  font-weight: 500;
+}
 
 .hero-stats {
   display: grid;
