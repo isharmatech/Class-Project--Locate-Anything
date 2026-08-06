@@ -218,6 +218,13 @@ def annotate_image(image: Image.Image, answer: str) -> Image.Image:
         right = max(0, min(width - 1, round(x2 / 1000 * width)))
         bottom = max(0, min(height - 1, round(y2 / 1000 * height)))
 
+        # The model can occasionally emit a malformed/degenerate box (e.g. x2 < x1);
+        # normalize instead of letting PIL raise and abort the whole request.
+        left, right = min(left, right), max(left, right)
+        top, bottom = min(top, bottom), max(top, bottom)
+        if left == right or top == bottom:
+            continue
+
         draw.rectangle((left, top, right, bottom), outline="red", width=line_width)
 
         text_box = draw.textbbox((left, top), label, font=font)
