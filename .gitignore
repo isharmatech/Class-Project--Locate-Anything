@@ -1,1 +1,5 @@
 .DS_Store
+
+# Raw/uncompressed demo recording — only the compressed assets/videos/demo.mp4
+# (re-encoded via ffmpeg) is committed and served from the site.
+/LocateAnythingDemo_Final.mp4

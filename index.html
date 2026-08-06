@@ -818,6 +818,23 @@
           <p class="body-copy"><strong>Inference modes:</strong> <code class="mono">hybrid</code> (default) balances speed and quality; <code class="mono">fast</code> uses pure parallel decoding; <code class="mono">slow</code> falls back to sequential autoregressive decoding.</p>
         </div>
 
+        <div class="media-full media-md reveal">
+          <div class="wrap-inner">
+            <figure class="media-block">
+              <video
+                src="assets/videos/demo.mp4"
+                poster="assets/videos/demo-poster.jpg"
+                controls
+                preload="metadata"
+                playsinline
+                aria-label="Recorded walkthrough of the Locate Anything Gradio demo">
+                Your browser does not support embedded video. <a href="assets/videos/demo.mp4">Download the recording</a> instead.
+              </video>
+              <figcaption><span class="fig-num">Video</span> Recorded walkthrough of the live demo &mdash; useful if the embedded Space below is asleep or has hit its ZeroGPU quota.</figcaption>
+            </figure>
+          </div>
+        </div>
+
         <p class="embed-note">
           <svg class="embed-note-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
           <span><strong>Please only run the demo once.</strong> This demo runs on shared ZeroGPU infrastructure with a limited daily GPU-minute quota &mdash; the quota can get exhausted and the demo will stop working for everyone until it resets. The first request after the Space wakes up takes ~30&ndash;60 s while the 3B checkpoint loads onto the GPU. If the demo doesn't run, try refreshing the page; if it is still not working the daily ZeroGPU runs limit has most likely been reached, please try again later.</span>
